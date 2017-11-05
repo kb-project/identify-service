@@ -97,6 +97,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Properties\PublishProfiles\IdentifyWeb - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\kb-identifyweb - Web Deploy.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

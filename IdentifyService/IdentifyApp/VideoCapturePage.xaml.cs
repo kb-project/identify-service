@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -22,6 +23,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
+using Windows.Web.Http;
 
 // 빈 페이지 항목 템플릿에 대한 설명은 https://go.microsoft.com/fwlink/?LinkId=234238에 나와 있습니다.
 
@@ -145,6 +147,49 @@ namespace IdentifyApp
 
         private async void selectBtnClicked(object sender, RoutedEventArgs e)
         {
+            Uri uri = new Uri("http://kb-identifyweb.azurewebsites.net/api/upload");
+
+            // Create FileOpenPicker instance    
+            FileOpenPicker fileOpenPicker = new FileOpenPicker();
+
+            // Set SuggestedStartLocation    
+            fileOpenPicker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+
+            // Set ViewMode    
+            fileOpenPicker.ViewMode = PickerViewMode.Thumbnail;
+
+            // Filter for file types. For example, if you want to open text files,  
+            // you will add .txt to the list.  
+
+            fileOpenPicker.FileTypeFilter.Clear();
+            fileOpenPicker.FileTypeFilter.Add(".png");
+            fileOpenPicker.FileTypeFilter.Add(".jpeg");
+            fileOpenPicker.FileTypeFilter.Add(".jpg");
+            fileOpenPicker.FileTypeFilter.Add(".bmp");
+
+            // Open FileOpenPicker    
+            StorageFile file = await fileOpenPicker.PickSingleFileAsync();
+            if (file != null)
+            {
+                //선택한 파일 들을 웹서버로 전송
+                IInputStream inputStream = await file.OpenAsync(FileAccessMode.Read);
+
+                HttpMultipartFormDataContent multipartContent = new HttpMultipartFormDataContent();
+
+                multipartContent.Add(
+                    new HttpStreamContent(inputStream),
+                    "myFile",
+                    file.Name);
+                HttpClient client = new HttpClient();
+                HttpResponseMessage response = await client.PostAsync(
+                    uri,
+                    multipartContent);
+
+                Debug.WriteLine(response);
+
+            }
+
+
             
         }
     }
