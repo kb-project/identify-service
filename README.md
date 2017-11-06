@@ -22,3 +22,35 @@ Cognitive Serivces와 관련된 자세한 정보는 아래에서 참고하실 �
 
 ### Settings
 
+본 프로젝트에서 이용할 프로그램들은 다음과 같습니다. 
+
+1. Visual Studio 2017
+
+Client Application으로는 윈도우 10 기기에서 동작하는 애플리케이션인 UWP App으로 개발할 예정입니다. 또한 Web API를 이용하여 간단하게 서버사이드 로직을 구현할 예정입니다. 이를 위해서는 컴퓨터에 [Visual Studio 2017을 설치](https://www.visualstudio.com/ko/)한 후에 Visual Studio Installer에서 다음의 옵션들을 선택하고 다운로드 받으시면 됩니다. 
+
+![004](./images/004.PNG)
+
+2. Chrome 및 Postman 
+
+개발자 도구 및 API 테스트를 편리하게 할 수 있는 아주 유용한 도구인 POSTMAN 사용을 위해 크롬을 설치한 후 -> POSTMAN을 설치하시기 바랍니다.  
+
+* [Chrome 설치](https://support.google.com/chrome/answer/95346?co=GENIE.Platform%3DDesktop&hl=ko) 
+* [POSTMAN 설치](https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop) 
+
+![005](./images/005.PNG)
+
+3. Azure Storage Explorer
+
+Azure Storage에 있는 파일 목록을 쉽게 확인하고 파일 추가 및 삭제 권한 관리등이 가능합니다. 
+
+* [Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/)
+
+![006](./images/006.PNG)
+
+4. Git
+
+소스코드 형상관리를 위해 Git을 사용할 예정입니다. 
+
+* [Git 다운로드](https://git-scm.com/downloads)
+* [Git 사용법](http://rogerdudler.github.io/git-guide/index.ko.html)
+
