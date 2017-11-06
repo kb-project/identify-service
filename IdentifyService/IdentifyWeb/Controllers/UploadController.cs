@@ -46,11 +46,12 @@ namespace IdentifyWeb.Controllers
                 // Read the form data.
                 await Request.Content.ReadAsMultipartAsync(provider);
 
-                
+                //OCR 호출
                 List<string> contentsOcr = await CognitiveServiceCallAsync(provider, 
                     "https://eastasia.api.cognitive.microsoft.com/vision/v1.0/ocr?language=ko&detectOrientation=true", 
                     "601a9f2e62d043ca807f55060769b550");
 
+                //OCR 결과를 건별로 Queue에 넣음, trace 표시
                 foreach (string content in contentsOcr)
                 {
                     CloudQueueMessage message = new CloudQueueMessage(content);
@@ -59,10 +60,12 @@ namespace IdentifyWeb.Controllers
                     Trace.WriteLine("OCR: " + content);
                 }
                 
+                //Face Detection 호출
                 List<string> contentsFace = await CognitiveServiceCallAsync(provider, 
                     "https://eastasia.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceAttributes=age,gender,headPose,glasses,accessories", 
                     "d34788525010436ba92a2fdea1463ec4");
 
+                //Face 결과를 trace 표시
                 foreach (string content in contentsFace)
                 {
                     Trace.WriteLine("Face: " + content);
