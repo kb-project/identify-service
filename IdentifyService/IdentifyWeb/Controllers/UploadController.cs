@@ -39,8 +39,34 @@ namespace IdentifyWeb.Controllers
             //사진 파일을 App_Data 폴더 밑에 임시로 저장
             try
             {
+                List<string> contents = await CognitiveServiceCall(provider, "https://eastasia.api.cognitive.microsoft.com/vision/v1.0/ocr?language=ko&detectOrientation=true");
+
+                foreach (string content in contents)
+                {
+                    CloudQueueMessage message = new CloudQueueMessage(content);
+                    queue.AddMessage(message);
+
+                }
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception e)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
+            }
+            
+            
+
+        }
+
+        public async Task<List<string>> CognitiveServiceCall(MultipartFormDataStreamProvider provider, string url)
+        {
+
+            try
+            {
                 // Read the form data.
                 await Request.Content.ReadAsMultipartAsync(provider);
+
+                List<string> contents = new List<string>();
 
                 // This illustrates how to get the file names.
                 foreach (MultipartFileData file in provider.FileData)
@@ -48,9 +74,9 @@ namespace IdentifyWeb.Controllers
                     Trace.WriteLine(file.Headers.ContentDisposition.FileName);
                     Trace.WriteLine("Server file path: " + file.LocalFileName);
 
-                    var client = new RestClient("https://eastasia.api.cognitive.microsoft.com/vision/v1.0/ocr?language=ko&detectOrientation=true");
+                    var client = new RestClient(url);
                     var request = new RestRequest(Method.POST);
-                    
+
                     //사진 파일에 대해 OCR 분석 관련 HTTP POST 요청 
                     request.AddHeader("content-type", "application/octect-stream");
                     request.AddHeader("ocp-apim-subscription-key", "601a9f2e62d043ca807f55060769b550");
@@ -58,19 +84,20 @@ namespace IdentifyWeb.Controllers
                     IRestResponse response = client.Execute(request);
                     Trace.WriteLine(response.Content);
 
-                    CloudQueueMessage message = new CloudQueueMessage(response.Content);
-                    queue.AddMessage(message);
+
+                    contents.Add(response.Content);
+                    
                 }
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return contents;
             }
             catch (System.Exception e)
             {
-                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
+                Trace.WriteLine($"Exception: {e.Data}");
+                throw e;
             }
 
-            
-
         }
+
 
     }
 }
