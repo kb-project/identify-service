@@ -92,6 +92,7 @@ namespace IdentifyApp
             await photo.CopyAsync(destinationFolder, "ProfilePhoto.jpg", NameCollisionOption.ReplaceExisting);
             //await photo.DeleteAsync();
 
+
             IRandomAccessStream stream = await photo.OpenAsync(FileAccessMode.Read);
             BitmapDecoder decoder = await BitmapDecoder.CreateAsync(stream);
             SoftwareBitmap softwareBitmap = await decoder.GetSoftwareBitmapAsync();
@@ -108,43 +109,43 @@ namespace IdentifyApp
 
         private void takePhotoBtnClicked(object sender, RoutedEventArgs e)
         {
-            //takePhoto();
-            TakePhotoAsync();
+            takePhoto();
+            //TakePhotoAsync();
            
         }
 
         private async void confirmBtnClicked(object sender, RoutedEventArgs e)
         {            
             //확인 버튼을 누를 경우 - 이미지 파일로 저장
-            var myPictures = await Windows.Storage.StorageLibrary.GetLibraryAsync(Windows.Storage.KnownLibraryId.Pictures);
-            StorageFile file = await myPictures.SaveFolder.CreateFileAsync("photo.jpg", CreationCollisionOption.GenerateUniqueName);
+            //var myPictures = await Windows.Storage.StorageLibrary.GetLibraryAsync(Windows.Storage.KnownLibraryId.Pictures);
+            //StorageFile file = await myPictures.SaveFolder.CreateFileAsync("photo.jpg", CreationCollisionOption.GenerateUniqueName);
 
-            using (var captureStream = new InMemoryRandomAccessStream())
-            {
-                await mediaCapture.CapturePhotoToStreamAsync(ImageEncodingProperties.CreateJpeg(), captureStream);
+            //using (var captureStream = new InMemoryRandomAccessStream())
+            //{
+            //    await mediaCapture.CapturePhotoToStreamAsync(ImageEncodingProperties.CreateJpeg(), captureStream);
 
-                using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite))
-                {
-                    var decoder = await BitmapDecoder.CreateAsync(captureStream);
-                    var encoder = await BitmapEncoder.CreateForTranscodingAsync(fileStream, decoder);
+            //    using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite))
+            //    {
+            //        var decoder = await BitmapDecoder.CreateAsync(captureStream);
+            //        var encoder = await BitmapEncoder.CreateForTranscodingAsync(fileStream, decoder);
 
-                    var properties = new BitmapPropertySet {
-                        { "System.Photo.Orientation", new BitmapTypedValue(PhotoOrientation.Normal, PropertyType.UInt16) }
-                    };
-                    await encoder.BitmapProperties.SetPropertiesAsync(properties);
+            //        var properties = new BitmapPropertySet {
+            //            { "System.Photo.Orientation", new BitmapTypedValue(PhotoOrientation.Normal, PropertyType.UInt16) }
+            //        };
+            //        await encoder.BitmapProperties.SetPropertiesAsync(properties);
 
-                    await encoder.FlushAsync();
-                }
-            }
+            //        await encoder.FlushAsync();
+            //    }
+            //}
 
             //다음 페이지로 이동
-            Frame.Navigate(typeof(VideoCapturePage));
+            Frame.Navigate(typeof(FrontViewPage));
         }
 
         private void retakeBtnClicked(object sender, RoutedEventArgs e)
         {
-            //takePhoto();
-            TakePhotoAsync();
+            takePhoto();
+            //TakePhotoAsync();
         }
 
         
