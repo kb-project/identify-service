@@ -19,12 +19,10 @@ namespace IdentifyWeb.Controllers
     {
         public async Task<HttpResponseMessage> PostFormData()
         {
-            // Parse the connection string and return a reference to the storage account.
+            // Azure Queue Storage - 셋업 관련 코드
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
                 CloudConfigurationManager.GetSetting("StorageConnectionString"));
-
             CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
-
             CloudQueue queue = queueClient.GetQueueReference("ocr");
             queue.CreateIfNotExists();
 
@@ -52,9 +50,10 @@ namespace IdentifyWeb.Controllers
 
                     var client = new RestClient("https://eastasia.api.cognitive.microsoft.com/vision/v1.0/ocr?language=ko&detectOrientation=true");
                     var request = new RestRequest(Method.POST);
-
+                    
+                    //사진 파일에 대해 OCR 분석 관련 HTTP POST 요청 
                     request.AddHeader("content-type", "application/octect-stream");
-                    request.AddHeader("ocp-apim-subscription-key", "caec3ca99dc94429ba2e390d8fdd5964");
+                    request.AddHeader("ocp-apim-subscription-key", "601a9f2e62d043ca807f55060769b550");
                     request.AddFile("test.png", file.LocalFileName);
                     IRestResponse response = client.Execute(request);
                     Trace.WriteLine(response.Content);
