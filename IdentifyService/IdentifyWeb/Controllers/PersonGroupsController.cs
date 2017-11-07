@@ -17,7 +17,7 @@ using Newtonsoft.Json;
 
 namespace IdentifyWeb.Controllers
 {
-    public class PersonController : ApiController
+    public class PersonGroupsController : ApiController
     {
         //public async Task<HttpResponseMessage> PostFormData()
         //{
@@ -36,7 +36,7 @@ namespace IdentifyWeb.Controllers
 
         //    string root = HttpContext.Current.Server.MapPath("~/App_Data");
         //    var provider = new MultipartFormDataStreamProvider(root);
-            
+
 
         //    //사진 파일을 App_Data 폴더 밑에 임시로 저장
         //    try
@@ -74,10 +74,11 @@ namespace IdentifyWeb.Controllers
         //}
 
 
-
-        public async Task<HttpResponseMessage> PostCreatePersonAsync()
+        [Route("api/persongroups/{personGroupId}/persons")]
+        [HttpPost]
+        public async Task<HttpResponseMessage> PostCreatePersonAsync(string personGroupId)
         {
-            var client = new RestClient("https://eastasia.api.cognitive.microsoft.com/face/v1.0/persongroups/persongroup1/persons");
+            var client = new RestClient($"https://eastasia.api.cognitive.microsoft.com/face/v1.0/persongroups/{personGroupId}/persons");
             var request = new RestRequest(Method.POST);
             request.AddHeader("ocp-apim-subscription-key", "d34788525010436ba92a2fdea1463ec4");
             request.AddHeader("content-type", "application/json");
