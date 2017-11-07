@@ -1,22 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
-using Windows.Graphics.Display;
-using Windows.Graphics.Imaging;
-using Windows.Media.Capture;
-using Windows.Media.MediaProperties;
-using Windows.Storage;
-using Windows.Storage.FileProperties;
-using Windows.Storage.Streams;
-using Windows.System.Display;
-using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -24,21 +12,34 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Windows.Media.Capture;
+using Windows.ApplicationModel;
+using System.Threading.Tasks;
+using Windows.System.Display;
+using Windows.Graphics.Display;
+using Windows.UI.Core;
+using System.Diagnostics;
+using Windows.Media.MediaProperties;
+using Windows.Storage.Streams;
+using Windows.Storage;
+using Windows.Graphics.Imaging;
+using Windows.Storage.FileProperties;
 
-// 빈 페이지 항목 템플릿에 대한 설명은 https://go.microsoft.com/fwlink/?LinkId=234238에 나와 있습니다.
+// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
 namespace IdentifyApp
 {
     /// <summary>
-    /// 자체적으로 사용하거나 프레임 내에서 탐색할 수 있는 빈 페이지입니다.
+    /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class FrontViewPage : Page
+    public sealed partial class IdcardPage : Page
     {
         MediaCapture mediaCapture;
         bool isPreviewing;
 
         DisplayRequest displayRequest = new DisplayRequest();
-        public FrontViewPage()
+
+        public IdcardPage()
         {
             this.InitializeComponent();
             StartPreviewAsync();
@@ -75,42 +76,11 @@ namespace IdentifyApp
 
         }
 
-        public async void TakePhotoAsync()
+        private void ShowMessageToUser(string v)
         {
-            mediaCapture = new MediaCapture();
-            await mediaCapture.InitializeAsync();
-            //mediaCapture.Failed += MediaCapture_Failed;
-
-            // Prepare and capture photo
-            var lowLagCapture = await mediaCapture.PrepareLowLagPhotoCaptureAsync(ImageEncodingProperties.CreateUncompressed(MediaPixelFormat.Bgra8));
-
-            var capturedPhoto = await lowLagCapture.CaptureAsync();
-            var softwareBitmap = capturedPhoto.Frame.SoftwareBitmap;
-
-            await lowLagCapture.FinishAsync();
-
-            var myPictures = await Windows.Storage.StorageLibrary.GetLibraryAsync(Windows.Storage.KnownLibraryId.Pictures);
-            StorageFile file = await myPictures.SaveFolder.CreateFileAsync("frontview.jpg", CreationCollisionOption.ReplaceExisting);
-
-            using (var captureStream = new InMemoryRandomAccessStream())
-            {
-                await mediaCapture.CapturePhotoToStreamAsync(ImageEncodingProperties.CreateJpeg(), captureStream);
-
-                using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite))
-                {
-                    var decoder = await BitmapDecoder.CreateAsync(captureStream);
-                    var encoder = await BitmapEncoder.CreateForTranscodingAsync(fileStream, decoder);
-
-                    var properties = new BitmapPropertySet {
-                        { "System.Photo.Orientation", new BitmapTypedValue(PhotoOrientation.Normal, PropertyType.UInt16) }
-                    };
-                    await encoder.BitmapProperties.SetPropertiesAsync(properties);
-
-                    await encoder.FlushAsync();
-                }
-            }
-
+            throw new NotImplementedException();
         }
+
         private async void _mediaCapture_CaptureDeviceExclusiveControlStatusChanged(MediaCapture sender, MediaCaptureDeviceExclusiveControlStatusChangedEventArgs args)
         {
             if (args.Status == MediaCaptureDeviceExclusiveControlStatus.SharedReadOnlyAvailable)
@@ -161,16 +131,61 @@ namespace IdentifyApp
 
         }
 
-
-        private void confirmBtnClicked(object sender, RoutedEventArgs e)
+        public async void TakePhotoAsync()
         {
-            Frame.Navigate(typeof(RightViewPage));
+            mediaCapture = new MediaCapture();
+            await mediaCapture.InitializeAsync();
+            //mediaCapture.Failed += MediaCapture_Failed;
+
+            // Prepare and capture photo
+            var lowLagCapture = await mediaCapture.PrepareLowLagPhotoCaptureAsync(ImageEncodingProperties.CreateUncompressed(MediaPixelFormat.Bgra8));
+
+            var capturedPhoto = await lowLagCapture.CaptureAsync();
+            var softwareBitmap = capturedPhoto.Frame.SoftwareBitmap;
+
+            await lowLagCapture.FinishAsync();
+
+            var myPictures = await Windows.Storage.StorageLibrary.GetLibraryAsync(Windows.Storage.KnownLibraryId.Pictures);
+            StorageFile file = await myPictures.SaveFolder.CreateFileAsync("idcard.jpg", CreationCollisionOption.ReplaceExisting);
+
+            using (var captureStream = new InMemoryRandomAccessStream())
+            {
+                await mediaCapture.CapturePhotoToStreamAsync(ImageEncodingProperties.CreateJpeg(), captureStream);
+
+                using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite))
+                {
+                    var decoder = await BitmapDecoder.CreateAsync(captureStream);
+                    var encoder = await BitmapEncoder.CreateForTranscodingAsync(fileStream, decoder);
+
+                    var properties = new BitmapPropertySet {
+                        { "System.Photo.Orientation", new BitmapTypedValue(PhotoOrientation.Normal, PropertyType.UInt16) }
+                    };
+                    await encoder.BitmapProperties.SetPropertiesAsync(properties);
+
+                    await encoder.FlushAsync();
+                }
+            }
+
         }
 
-        private async void takePhotoBtnClicked(object sender, RoutedEventArgs e)
+        private async void cameraBtnClicked(object sender, RoutedEventArgs e)
         {
+            
             TakePhotoAsync();
             await StartPreviewAsync();
+            //await CleanupCameraAsync();
+            //await StartPreviewAsync();
         }
+
+        private async void confirmBtnClicked(object sender, RoutedEventArgs e)
+        {
+            await CleanupCameraAsync();
+            Frame.Navigate(typeof(FrontViewPage));
+        }
+
+        //private void cameraStopBtnClicked(object sender, RoutedEventArgs e)
+        //{
+
+        //}
     }
 }
