@@ -95,6 +95,31 @@ namespace IdentifyWeb.Controllers
 
             return Request.CreateResponse(HttpStatusCode.OK, createPersonResult);
         }
+
+
+        [Route("api/persongroups/{personGroupId}/training")]
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetPersonGroupTrainingStatus(string personGroupId)
+        {
+            var client = new RestClient("https://eastasia.api.cognitive.microsoft.com/face/v1.0/persongroups/"+personGroupId+"/training");
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("ocp-apim-subscription-key", "d34788525010436ba92a2fdea1463ec4");
+            //request.AddHeader("content-type", "application/json");
+
+            IRestResponse response = client.Execute(request);
+
+            if (response.ResponseStatus == ResponseStatus.Completed && response.StatusCode == HttpStatusCode.OK)
+            {
+                PersonGroupTrainingStatus personGroupTrainingStatus = JsonConvert.DeserializeObject<PersonGroupTrainingStatus>(response.Content);
+
+                return Request.CreateResponse(HttpStatusCode.OK, personGroupTrainingStatus);
+            }
+            else
+            {
+                return Request.CreateResponse(response.StatusCode, response.Content);
+            }
+        }
+
     }
 
 
@@ -106,4 +131,15 @@ namespace IdentifyWeb.Controllers
             personId = personIdString;
         }
     }
+
+    public class PersonGroupTrainingStatus
+    {
+        public string status { get; set; }
+        public string createDataTime { get; set; }
+        public string lastActionDateTime { get; set; }
+        public string message { get; set; }
+        
+    }
+
+    
 }
