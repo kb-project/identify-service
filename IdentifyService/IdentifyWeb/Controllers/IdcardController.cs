@@ -41,6 +41,7 @@ namespace IdentifyWeb.Controllers
             // Now we're not going to use multipart/form-data. 
             // Instead, upload image to temporary storage accound, and relay the url to Cognitive Services.
 
+
             // Check if the request contains multipart/form-data.
             if (!Request.Content.IsMimeMultipartContent())
             {
@@ -69,8 +70,7 @@ namespace IdentifyWeb.Controllers
             //Upload image to temporary storage account
             try
             {
-                List<string> contents = new List<string>();
-
+                
                 // This illustrates how to get the file names.
                 foreach (MultipartFileData file in provider.FileData)
                 {
@@ -131,12 +131,24 @@ namespace IdentifyWeb.Controllers
                     //Face 결과를 trace 표시
                     foreach (string content in contentsFace)
                     {
-                        Trace.WriteLine("Face: " + content);
+                        
+                        List<FaceDetectResult> faceDetectResults = JsonConvert.DeserializeObject<List<FaceDetectResult>>(content);
+
+                        if (faceDetectResults.Count > 0)
+                        {
+                            Trace.WriteLine("Face: " + content);
+                            Trace.WriteLine("FaceId: " + faceDetectResults[0].faceId);
+
+
+                            HttpResponseMessage message = Request.CreateResponse(HttpStatusCode.OK, new JsonFaceId(faceDetectResults[0].faceId));
+
+                            return message;
+                        }
                     }
 
                 }
 
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.OK, new JsonFaceId(""));
             }
             catch (Exception e)
             {
@@ -202,6 +214,28 @@ namespace IdentifyWeb.Controllers
 
         
     }
+
+
+    public class JsonFaceId
+    {
+        public string faceId { get; set; }
+
+        public JsonFaceId(string faceIdString)
+        {
+            faceId = faceIdString;
+        }
+    }
+
+
+    public class FaceDetectResult
+    {
+        public string faceId { get; set; }
+        public object faceRectangle { get; set; }
+        public object faceLandmarks { get; set; }
+        public object faceAttributes { get; set; }
+        
+    }
+
 
 
 }
