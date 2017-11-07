@@ -32,47 +32,24 @@ namespace IdentifyWeb.Controllers
         CloudBlobContainer container;
         MultipartFormDataStreamProvider provider;
 
-        List<string> listUrlBlobString;
+        List<UrlBlob> listUrlBlob;
 
         public async Task<HttpResponseMessage> PostFormData()
         {
             InitEnvironment();
 
-            #region Copy Attached File to App_Data folder
-            //// 사진 파일을 App_Data 폴더 밑에 임시로 저장
-            try
-            {
-                // Read the form data.
-                await Request.Content.ReadAsMultipartAsync(provider);
-            }
-            catch (Exception e)
-            {
-                Trace.WriteLine("Exception occurred while reading Request Content.");
-                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
-            }
-
-            listUrlBlobString = new List<string>();
+            #region Step1-Step2. 첨부된 파일을 Web App의 Map Path에 복사하고, 이를 Blob Container에 업로드
+            MultipartFormdataStreamBlobUploader multipartFormdataStreamBlobUploader = new MultipartFormdataStreamBlobUploader(provider, storageAccount, container);            
+            listUrlBlob = await multipartFormdataStreamBlobUploader.UploadAttachedFileToBlobContainer(this.Request);
             #endregion
 
-            #region Upload image to temporary storage account
+            #region Step3. 저장한 blob 위치를 인지서비스에 전달하여 OCR 및 Face 정보 추출
             try
             {
-                UploadImageFilesToTempBlobContainer(provider, container, listUrlBlobString);
-            }
-            catch (Exception e)
-            {
-                Trace.WriteLine("Exception occurred while uploading file.");
-                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
-            }
-            #endregion
-
-            #region 저장한 blob 위치를 인지서비스에 전달하여 OCR 및 Face 정보 추출
-            try
-            {
-                foreach (string urlBlob in listUrlBlobString)
+                foreach (UrlBlob urlBlob in listUrlBlob)
                 {
                     //OCR 호출
-                    List<string> contentsOcr = await CognitiveServiceCallAsync(urlBlob,
+                    List<string> contentsOcr = await CognitiveServiceCallAsync(urlBlob.url,
                         "https://eastasia.api.cognitive.microsoft.com/vision/v1.0/ocr?language=ko&detectOrientation=true",
                          CloudConfigurationManager.GetSetting("CognitiveServicesKeyVision"));
 
@@ -86,7 +63,7 @@ namespace IdentifyWeb.Controllers
                     }
 
                     //Face Detection 호출
-                    List<string> contentsFace = await CognitiveServiceCallAsync(urlBlob,
+                    List<string> contentsFace = await CognitiveServiceCallAsync(urlBlob.url,
                         "https://eastasia.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceAttributes=age,gender,headPose,glasses,accessories",
                         CloudConfigurationManager.GetSetting("CognitiveServicesKeyFace"));
 
@@ -139,30 +116,7 @@ namespace IdentifyWeb.Controllers
 
         }
 
-        private void UploadImageFilesToTempBlobContainer(MultipartFormDataStreamProvider provider, CloudBlobContainer container, List<string> listUrlBlobString)
-        {
-            // This illustrates how to get the file names.
-            foreach (MultipartFileData file in provider.FileData)
-            {
-                Trace.WriteLine(file.Headers.ContentDisposition.FileName);
-                Trace.WriteLine("Server file path: " + file.LocalFileName);
-
-                //set blob name: only use filename excluding folder location
-                string blobname = $"{CloudConfigurationManager.GetSetting("TempBlobRelativeLocationIdcard")}/{file.LocalFileName.Substring(file.LocalFileName.LastIndexOf("\\") + 1)}";
-                CloudBlockBlob blob = container.GetBlockBlobReference(blobname);
-                blob.UploadFromFile(file.LocalFileName);
-
-                blob.FetchAttributes();
-                bool success = blob.Properties.Length == new System.IO.FileInfo(file.LocalFileName).Length;
-                if (!success)
-                {
-                    blob.Delete();
-                    throw new StorageException();
-                }
-
-                listUrlBlobString.Add(blob.Uri.AbsoluteUri);
-            }
-        }
+        
 
         public async Task<List<string>> CognitiveServiceCallAsync(string urlBlob, string urlServices, string key)
         {
