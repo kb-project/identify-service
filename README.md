@@ -54,3 +54,31 @@ Azure Storage에 있는 파일 목록을 쉽게 확인하고 파일 추가 및 �
 * [Git 다운로드](https://git-scm.com/downloads)
 * [Git 사용법](http://rogerdudler.github.io/git-guide/index.ko.html)
 
+## Detail Information
+
+### Server-side
+1. [POST] api/persongroups/{PersonGroupId}/persons
+** parameter: PersonGroupId
+** return: PersonId
+: 위의 API를 요청하면 다음과 같은 PersonId 리턴함
+
+2. [POST] api/upload
+** parameter: 이미지 전송
+** return: FaceId
+Blob 스토리지에 이미지를 저장 (Blob/idcard)
+-> Vision/OCR 호출한 후 JSON 데이터를 Queue에 전송 
+-> Face API / Dectect를 호출한 후 FaceId 클라이언트에 반환 
+
+3. [POST] api/photo
+-> Blob Storage에 사진파일 저장
+-> PersonId 랑 Blob Storage URL, PersonGroupId 큐에 저장 
+
+4. [GET] api/persoungroup/{personGroupId}/training
+** parameter: personGroupId
+학습 완료 여부 알려줌 
+
+5. [POST] api/verify
+** parameter: personGroupId, FaceId, PersonId
+동일인인지 여부 (퍼센트 소수점 숫자 반환)
+
+### Client-side
