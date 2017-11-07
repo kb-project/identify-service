@@ -25,30 +25,21 @@ namespace IdentifyWeb.Controllers
     
     public class IdcardController : ApiController
     {
+        CloudStorageAccount storageAccount;
+        CloudQueueClient queueClient;
+        CloudQueue queue;
+        CloudBlobClient blobClient;
+        CloudBlobContainer container;
+        MultipartFormDataStreamProvider provider;
+
+        List<string> listUrlBlobString;
+
         public async Task<HttpResponseMessage> PostFormData()
         {
-            // Azure Queue Storage - 셋업 관련 코드
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-                CloudConfigurationManager.GetSetting("StorageConnectionString"));
-            CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
-            CloudQueue queue = queueClient.GetQueueReference(CloudConfigurationManager.GetSetting("OcrQueueName"));
-            queue.CreateIfNotExists();
+            InitEnvironment();
 
-            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = blobClient.GetContainerReference(CloudConfigurationManager.GetSetting("TempBlobContainerNameIdcard"));
-
-
-            // Check if the request contains multipart/form-data.
-            if (!Request.Content.IsMimeMultipartContent())
-            {
-                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
-            }
-
-            string root = HttpContext.Current.Server.MapPath("~/App_Data");
-            var provider = new MultipartFormDataStreamProvider(root);
-
-
-            //사진 파일을 App_Data 폴더 밑에 임시로 저장
+            #region Copy Attached File to App_Data folder
+            //// 사진 파일을 App_Data 폴더 밑에 임시로 저장
             try
             {
                 // Read the form data.
@@ -60,58 +51,30 @@ namespace IdentifyWeb.Controllers
                 return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
             }
 
-            List<string> listUrlBlobString = new List<string>();
+            listUrlBlobString = new List<string>();
+            #endregion
 
-
-            //Upload image to temporary storage account
+            #region Upload image to temporary storage account
             try
             {
-                
-                // This illustrates how to get the file names.
-                foreach (MultipartFileData file in provider.FileData)
-                {
-                    Trace.WriteLine(file.Headers.ContentDisposition.FileName);
-                    Trace.WriteLine("Server file path: " + file.LocalFileName);
-
-                    //set blob name: only use filename excluding folder location
-                    string blobname = $"testblob/{file.LocalFileName.Substring(file.LocalFileName.LastIndexOf("\\") + 1)}";
-                    CloudBlockBlob blob = container.GetBlockBlobReference(blobname);
-                    blob.UploadFromFile(file.LocalFileName);
-
-                    blob.FetchAttributes();
-                    bool success = blob.Properties.Length == new System.IO.FileInfo(file.LocalFileName).Length;
-                    if (!success)
-                    {
-                        blob.Delete();
-                        throw new StorageException();
-
-                    }
-
-                    listUrlBlobString.Add(blob.Uri.AbsoluteUri);
-                }
+                UploadImageFilesToTempBlobContainer(provider, container, listUrlBlobString);
             }
             catch (Exception e)
             {
                 Trace.WriteLine("Exception occurred while uploading file.");
                 return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
-
             }
+            #endregion
 
-
-
-            // 저장한 blob 위치를 인지서비스에 전달하여 OCR 및 Face 정보 추출
+            #region 저장한 blob 위치를 인지서비스에 전달하여 OCR 및 Face 정보 추출
             try
             {
-
                 foreach (string urlBlob in listUrlBlobString)
                 {
                     //OCR 호출
                     List<string> contentsOcr = await CognitiveServiceCallAsync(urlBlob,
                         "https://eastasia.api.cognitive.microsoft.com/vision/v1.0/ocr?language=ko&detectOrientation=true",
                          CloudConfigurationManager.GetSetting("CognitiveServicesKeyVision"));
-
-                    
-
 
                     //OCR 결과를 건별로 Queue에 넣음, trace 표시
                     foreach (string content in contentsOcr)
@@ -130,39 +93,81 @@ namespace IdentifyWeb.Controllers
                     //Face 결과를 trace 표시
                     foreach (string content in contentsFace)
                     {
-                        
                         List<FaceDetectResult> faceDetectResults = JsonConvert.DeserializeObject<List<FaceDetectResult>>(content);
 
                         if (faceDetectResults.Count > 0)
                         {
                             Trace.WriteLine("Face: " + content);
                             Trace.WriteLine("FaceId: " + faceDetectResults[0].faceId);
-
-
+                            
                             HttpResponseMessage message = Request.CreateResponse(HttpStatusCode.OK, new JsonFaceId(faceDetectResults[0].faceId));
 
                             return message;
                         }
                     }
-
                 }
-
+                // return empty FaceId if no faces were found.
                 return Request.CreateResponse(HttpStatusCode.OK, new JsonFaceId(""));
             }
             catch (Exception e)
             {
                 return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
             }
-            
+            #endregion
+
         }
 
+        private void InitEnvironment()
+        {
+            storageAccount = CloudStorageAccount.Parse(
+                CloudConfigurationManager.GetSetting("StorageConnectionString"));
+            queueClient = storageAccount.CreateCloudQueueClient();
+            queue = queueClient.GetQueueReference(CloudConfigurationManager.GetSetting("OcrQueueName"));
+            queue.CreateIfNotExists();
+
+            blobClient = storageAccount.CreateCloudBlobClient();
+            container = blobClient.GetContainerReference(CloudConfigurationManager.GetSetting("TempBlobContainerNameIdcard"));
+
+            // Check if the request contains multipart/form-data.
+            if (!Request.Content.IsMimeMultipartContent())
+            {
+                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+            }
+
+            string root = HttpContext.Current.Server.MapPath("~/App_Data");
+            provider = new MultipartFormDataStreamProvider(root);
+
+        }
+
+        private void UploadImageFilesToTempBlobContainer(MultipartFormDataStreamProvider provider, CloudBlobContainer container, List<string> listUrlBlobString)
+        {
+            // This illustrates how to get the file names.
+            foreach (MultipartFileData file in provider.FileData)
+            {
+                Trace.WriteLine(file.Headers.ContentDisposition.FileName);
+                Trace.WriteLine("Server file path: " + file.LocalFileName);
+
+                //set blob name: only use filename excluding folder location
+                string blobname = $"{CloudConfigurationManager.GetSetting("TempBlobRelativeLocationIdcard")}/{file.LocalFileName.Substring(file.LocalFileName.LastIndexOf("\\") + 1)}";
+                CloudBlockBlob blob = container.GetBlockBlobReference(blobname);
+                blob.UploadFromFile(file.LocalFileName);
+
+                blob.FetchAttributes();
+                bool success = blob.Properties.Length == new System.IO.FileInfo(file.LocalFileName).Length;
+                if (!success)
+                {
+                    blob.Delete();
+                    throw new StorageException();
+                }
+
+                listUrlBlobString.Add(blob.Uri.AbsoluteUri);
+            }
+        }
 
         public async Task<List<string>> CognitiveServiceCallAsync(string urlBlob, string urlServices, string key)
         {
-
             try
             {
-
                 List<string> contents = new List<string>();
 
                 Trace.WriteLine("urlBlob: " + urlBlob);
@@ -177,16 +182,12 @@ namespace IdentifyWeb.Controllers
                 //request.AddFile("imagefile1", file.LocalFileName);
 
                 Trace.WriteLine(JsonConvert.SerializeObject(new JsonUrlBlob(urlBlob)));
-                
-
                 request.AddParameter("application/json", JsonConvert.SerializeObject(new JsonUrlBlob(urlBlob)), ParameterType.RequestBody);
 
                 IRestResponse response = client.Execute(request);
                 Trace.WriteLine(response.Content);
 
-
                 contents.Add(response.Content);
-
 
                 return contents;
             }
@@ -195,10 +196,7 @@ namespace IdentifyWeb.Controllers
                 Trace.WriteLine($"Exception: {e.Data}");
                 throw e;
             }
-
         }
-
-
     }
 
 
@@ -209,9 +207,7 @@ namespace IdentifyWeb.Controllers
         public JsonUrlBlob(string urlstring)
         {
             url = urlstring;
-        }
-
-        
+        }        
     }
 
 
@@ -231,10 +227,7 @@ namespace IdentifyWeb.Controllers
         public string faceId { get; set; }
         public object faceRectangle { get; set; }
         public object faceLandmarks { get; set; }
-        public object faceAttributes { get; set; }
-        
+        public object faceAttributes { get; set; }        
     }
-
-
-
+    
 }
