@@ -17,12 +17,13 @@ using Microsoft.WindowsAzure.Storage.Blob; // Namespace for Blob storage types
 using Microsoft.ProjectOxford.Common;
 using Newtonsoft;
 using Newtonsoft.Json;
-
+using IdentifyWeb.Models;
+using IdentifyWeb.Utility;
 
 namespace IdentifyWeb.Controllers
 {
 
-    
+
     public class IdcardController : ApiController
     {
         CloudStorageAccount storageAccount;
@@ -34,12 +35,13 @@ namespace IdentifyWeb.Controllers
 
         List<UrlBlob> listUrlBlob;
 
-        public async Task<HttpResponseMessage> PostFormData()
+        [HttpPost]
+        public async Task<HttpResponseMessage> ProcessIdcardPostAsync()
         {
             InitEnvironment();
 
             #region Step1-Step2. 첨부된 파일을 Web App의 Map Path에 복사하고, 이를 Blob Container에 업로드
-            MultipartFormdataStreamBlobUploader multipartFormdataStreamBlobUploader = new MultipartFormdataStreamBlobUploader(provider, storageAccount, container);            
+            MultipartFormdataStreamBlobUploader multipartFormdataStreamBlobUploader = new MultipartFormdataStreamBlobUploader(provider, storageAccount, container);
             listUrlBlob = await multipartFormdataStreamBlobUploader.UploadAttachedFileToBlobContainer(this.Request);
             #endregion
 
@@ -49,7 +51,7 @@ namespace IdentifyWeb.Controllers
                 foreach (UrlBlob urlBlob in listUrlBlob)
                 {
                     //OCR 호출
-                    List<string> contentsOcr = await CognitiveServiceCallAsync(urlBlob.url,
+                    List<string> contentsOcr = await CognitiveServicesCallHelper.CognitiveServicePostAsync(urlBlob.url,
                         "https://eastasia.api.cognitive.microsoft.com/vision/v1.0/ocr?language=ko&detectOrientation=true",
                          CloudConfigurationManager.GetSetting("CognitiveServicesKeyVision"));
 
@@ -63,7 +65,7 @@ namespace IdentifyWeb.Controllers
                     }
 
                     //Face Detection 호출
-                    List<string> contentsFace = await CognitiveServiceCallAsync(urlBlob.url,
+                    List<string> contentsFace = await CognitiveServicesCallHelper.CognitiveServicePostAsync(urlBlob.url,
                         "https://eastasia.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceAttributes=age,gender,headPose,glasses,accessories",
                         CloudConfigurationManager.GetSetting("CognitiveServicesKeyFace"));
 
@@ -76,7 +78,7 @@ namespace IdentifyWeb.Controllers
                         {
                             Trace.WriteLine("Face: " + content);
                             Trace.WriteLine("FaceId: " + faceDetectResults[0].faceId);
-                            
+
                             HttpResponseMessage message = Request.CreateResponse(HttpStatusCode.OK, new JsonFaceId(faceDetectResults[0].faceId));
 
                             return message;
@@ -116,72 +118,7 @@ namespace IdentifyWeb.Controllers
 
         }
 
-        
 
-        public async Task<List<string>> CognitiveServiceCallAsync(string urlBlob, string urlServices, string key)
-        {
-            try
-            {
-                List<string> contents = new List<string>();
-
-                Trace.WriteLine("urlBlob: " + urlBlob);
-                Trace.WriteLine("urlServices: " + urlServices);
-
-                var client = new RestClient(urlServices);
-                var request = new RestRequest(Method.POST);
-
-                //사진 파일에 대해 OCR 분석 관련 HTTP POST 요청 
-                request.AddHeader("Content-Type", "application/json");
-                request.AddHeader("ocp-apim-subscription-key", key);
-                //request.AddFile("imagefile1", file.LocalFileName);
-
-                Trace.WriteLine(JsonConvert.SerializeObject(new JsonUrlBlob(urlBlob)));
-                request.AddParameter("application/json", JsonConvert.SerializeObject(new JsonUrlBlob(urlBlob)), ParameterType.RequestBody);
-
-                IRestResponse response = client.Execute(request);
-                Trace.WriteLine(response.Content);
-
-                contents.Add(response.Content);
-
-                return contents;
-            }
-            catch (System.Exception e)
-            {
-                Trace.WriteLine($"Exception: {e.Data}");
-                throw e;
-            }
-        }
-    }
-
-
-    public class JsonUrlBlob
-    {
-        public string url { get; set; }
-
-        public JsonUrlBlob(string urlstring)
-        {
-            url = urlstring;
-        }        
-    }
-
-
-    public class JsonFaceId
-    {
-        public string faceId { get; set; }
-
-        public JsonFaceId(string faceIdString)
-        {
-            faceId = faceIdString;
-        }
-    }
-
-
-    public class FaceDetectResult
-    {
-        public string faceId { get; set; }
-        public object faceRectangle { get; set; }
-        public object faceLandmarks { get; set; }
-        public object faceAttributes { get; set; }        
     }
     
 }

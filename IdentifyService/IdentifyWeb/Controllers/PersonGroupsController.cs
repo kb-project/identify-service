@@ -13,7 +13,7 @@ using System.Web;
 using System.Web.Http;
 
 using Newtonsoft.Json;
-
+using IdentifyWeb.Models;
 
 namespace IdentifyWeb.Controllers
 {
@@ -22,7 +22,7 @@ namespace IdentifyWeb.Controllers
         
         [Route("api/persongroups/{personGroupId}/persons")]
         [HttpPost]
-        public async Task<HttpResponseMessage> PostCreatePersonAsync(string personGroupId)
+        public async Task<HttpResponseMessage> CreatePersonPostAsync(string personGroupId)
         {
             var client = new RestClient($"https://eastasia.api.cognitive.microsoft.com/face/v1.0/persongroups/{personGroupId}/persons");
             var request = new RestRequest(Method.POST);
@@ -43,7 +43,7 @@ namespace IdentifyWeb.Controllers
 
         [Route("api/persongroups/{personGroupId}/training")]
         [HttpGet]
-        public async Task<HttpResponseMessage> GetPersonGroupTrainingStatus(string personGroupId)
+        public async Task<HttpResponseMessage> PersonGroupTrainingStatusGetAsync(string personGroupId)
         {
             var client = new RestClient("https://eastasia.api.cognitive.microsoft.com/face/v1.0/persongroups/"+personGroupId+"/training");
             var request = new RestRequest(Method.GET);
@@ -67,23 +67,6 @@ namespace IdentifyWeb.Controllers
     }
 
 
-    public class CreatePersonResult
-    {
-        public string personId { get; set; }
-        public CreatePersonResult(string personIdString)
-        {
-            personId = personIdString;
-        }
-    }
-
-    public class PersonGroupTrainingStatus
-    {
-        public string status { get; set; }
-        public string createDataTime { get; set; }
-        public string lastActionDateTime { get; set; }
-        public string message { get; set; }
-        
-    }
 
     
 }
