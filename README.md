@@ -76,11 +76,7 @@ Azure Storage에 있는 파일 목록을 쉽게 확인하고 파일 추가 및 �
 3. [POST] api/photo
 ```
 * parameter: 이미지 전송
-```
-* Blob Storage에 사진파일 저장
-* Queue Storage에 **personGroupId, personId, blobUrl** 정보를 아래와 같은 포멧으로 저장 
 
-```
 Format 
 {
     "personGroupId": "persongroup1",
@@ -88,6 +84,8 @@ Format
     "blobUrl": "https://kbdwrstorage.blob.core.windows.net/sample/%EC%A0%84%EC%A7%80%ED%98%841.jpg"
 }
 ```
+* Blob Storage에 사진파일 저장
+* Queue Storage에 **personGroupId, personId, blobUrl** 정보를 아래와 같은 포멧으로 저장 
 
 4. [GET] api/persoungroup/{personGroupId}/training
 ```
@@ -100,7 +98,7 @@ Format
 * return: 동일인인지 여부 (퍼센트 소수점 숫자 반환)
 ```
 
-### Client-side
+### Azure Functions
 1. [QueueTrigger] ocr
 ```
 Format 
