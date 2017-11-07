@@ -25,26 +25,25 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// 빈 페이지 항목 템플릿에 대한 설명은 https://go.microsoft.com/fwlink/?LinkId=234238에 나와 있습니다.
+// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
 namespace IdentifyApp
 {
     /// <summary>
-    /// 자체적으로 사용하거나 프레임 내에서 탐색할 수 있는 빈 페이지입니다.
+    /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class FrontViewPage : Page
+    public sealed partial class LeftViewPage : Page
     {
         MediaCapture mediaCapture;
         bool isPreviewing;
 
         DisplayRequest displayRequest = new DisplayRequest();
-        public FrontViewPage()
+        public LeftViewPage()
         {
             this.InitializeComponent();
             StartPreviewAsync();
             Application.Current.Suspending += Application_Suspending;
         }
-
         private async Task StartPreviewAsync()
         {
             try
@@ -90,7 +89,7 @@ namespace IdentifyApp
             await lowLagCapture.FinishAsync();
 
             var myPictures = await Windows.Storage.StorageLibrary.GetLibraryAsync(Windows.Storage.KnownLibraryId.Pictures);
-            StorageFile file = await myPictures.SaveFolder.CreateFileAsync("frontview.jpg", CreationCollisionOption.ReplaceExisting);
+            StorageFile file = await myPictures.SaveFolder.CreateFileAsync("leftview.jpg", CreationCollisionOption.ReplaceExisting);
 
             using (var captureStream = new InMemoryRandomAccessStream())
             {
@@ -164,7 +163,7 @@ namespace IdentifyApp
 
         private void confirmBtnClicked(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(RightViewPage));
+            Frame.Navigate(typeof(VerifyPage));
         }
 
         private async void takePhotoBtnClicked(object sender, RoutedEventArgs e)

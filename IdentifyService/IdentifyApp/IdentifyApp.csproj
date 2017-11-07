@@ -98,10 +98,19 @@
     <Compile Include="FrontViewPage.xaml.cs">
       <DependentUpon>FrontViewPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="IdcardPage.xaml.cs">
+      <DependentUpon>IdcardPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LeftViewPage.xaml.cs">
+      <DependentUpon>LeftViewPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RightViewPage.xaml.cs">
+      <DependentUpon>RightViewPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="VerifyPage.xaml.cs">
       <DependentUpon>VerifyPage.xaml</DependentUpon>
     </Compile>
@@ -134,9 +143,21 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="IdcardPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="LeftViewPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="RightViewPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="VerifyPage.xaml">
       <SubType>Designer</SubType>
@@ -151,6 +172,11 @@
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.0.1</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <SDKReference Include="WindowsMobile, Version=10.0.16299.0">
+      <Name>Windows Mobile Extensions for the UWP</Name>
+    </SDKReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
