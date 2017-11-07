@@ -26,6 +26,9 @@ namespace IdentifyWeb.Controllers
             CloudQueue queue = queueClient.GetQueueReference("ocr");
             queue.CreateIfNotExists();
 
+            string urlBlob = "a";
+            string url = "{\"url\":\"" + urlBlob + "\"";
+
             // Check if the request contains multipart/form-data.
             if (!Request.Content.IsMimeMultipartContent())
             {

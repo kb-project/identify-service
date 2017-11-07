@@ -91,3 +91,156 @@ Blob 스토리지에 이미지를 저장 (Blob/idcard)
 동일인인지 여부 (퍼센트 소수점 숫자 반환)
 
 ### Client-side
+1. [QueueTrigger] ocr
+```
+Format 
+{
+  "textAngle": 0.0,
+  "orientation": "NotDetected",
+  "language": "ko",
+  "regions": [
+    {
+      "boundingBox": "54,27,317,254",
+      "lines": [
+        {
+          "boundingBox": "56,27,150,27",
+          "words": [
+            {
+              "boundingBox": "56,27,150,27",
+              "text": "주민등록증"
+            }
+          ]
+        },
+        {
+          "boundingBox": "63,79,136,23",
+          "words": [
+            {
+              "boundingBox": "63,81,20,20",
+              "text": "둘"
+            },
+            {
+              "boundingBox": "98,80,18,22",
+              "text": "리"
+            },
+            {
+              "boundingBox": "128,79,71,21",
+              "text": "(杜里)"
+            }
+          ]
+        },
+        {
+          "boundingBox": "55,112,154,13",
+          "words": [
+            {
+              "boundingBox": "55,112,154,13",
+              "text": "830422-1185600"
+            }
+          ]
+        },
+        {
+          "boundingBox": "54,143,114,14",
+          "words": [
+            {
+              "boundingBox": "54,143,36,14",
+              "text": "부천시"
+            },
+            {
+              "boundingBox": "95,143,37,14",
+              "text": "원미구"
+            },
+            {
+              "boundingBox": "136,143,32,14",
+              "text": "상1동"
+            }
+          ]
+        },
+        {
+          "boundingBox": "54,160,63,14",
+          "words": [
+            {
+              "boundingBox": "54,160,63,14",
+              "text": "412-3번지"
+            }
+          ]
+        },
+        {
+          "boundingBox": "54,178,65,14",
+          "words": [
+            {
+              "boundingBox": "54,178,36,14",
+              "text": "들리의"
+            },
+            {
+              "boundingBox": "95,178,24,14",
+              "text": "거리"
+            }
+          ]
+        },
+        {
+          "boundingBox": "299,198,56,27",
+          "words": [
+            {
+              "boundingBox": "299,198,56,27",
+              "text": "부진넣勺"
+            }
+          ]
+        },
+        {
+          "boundingBox": "156,209,85,12",
+          "words": [
+            {
+              "boundingBox": "156,209,85,12",
+              "text": "2003.4.22"
+            }
+          ]
+        },
+        {
+          "boundingBox": "151,228,220,22",
+          "words": [
+            {
+              "boundingBox": "151,229,37,19",
+              "text": "기도"
+            },
+            {
+              "boundingBox": "194,229,82,21",
+              "text": "부천시장1"
+            },
+            {
+              "boundingBox": "362,228,9,2",
+              "text": "-"
+            }
+          ]
+        },
+        {
+          "boundingBox": "171,271,79,10",
+          "words": [
+            {
+              "boundingBox": "171,271,19,10",
+              "text": "물리"
+            },
+            {
+              "boundingBox": "197,271,53,10",
+              "text": "주민듷록좋"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+해당 정보를 파싱하여 **신분증 타입, 발급번호, 발급기관**을 데이터베이스에 저장
+
+2. [QueueTrigger] photo
+
+```
+Format 
+{
+    "personGroupId": "persongroup1",
+    "personId": "7573189b-eceb-4ff7-a95c-479d9cc34381",
+    "blobUrl": "https://kbdwrstorage.blob.core.windows.net/sample/%EC%A0%84%EC%A7%80%ED%98%841.jpg"
+}
+```
+* STEP1. personId에 해당 URL의 사진을 추가
+* STEP2. PersonGroup을 Training
