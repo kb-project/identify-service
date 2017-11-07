@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 
+using Newtonsoft.Json;
+
+
 namespace IdentifyWeb.Controllers
 {
     public class PersonController : ApiController
@@ -72,7 +75,7 @@ namespace IdentifyWeb.Controllers
 
 
 
-        public async Task<HttpResponseMessage> GetPersonGroupAsync()
+        public async Task<HttpResponseMessage> PostCreatePersonAsync()
         {
             var client = new RestClient("https://eastasia.api.cognitive.microsoft.com/face/v1.0/persongroups/persongroup1/persons");
             var request = new RestRequest(Method.POST);
@@ -82,10 +85,24 @@ namespace IdentifyWeb.Controllers
             //GUID 생성 코드 추가
             Guid guid = Guid.NewGuid();
 
-            request.AddParameter("application/json", "{\r\n    \"name\":guid,\r\n    \"userData\":\"User-provided data attached to the person\"\r\n}", ParameterType.RequestBody);
+            request.AddParameter("application/json", "{\"name\":\"" + guid + "\",\"userData\":\"User-provided data attached to the person\"}", ParameterType.RequestBody);
             IRestResponse response = client.Execute(request);
-            
-            return Request.CreateResponse(HttpStatusCode.OK);
+
+
+
+            CreatePersonResult createPersonResult = JsonConvert.DeserializeObject<CreatePersonResult>(response.Content);
+
+            return Request.CreateResponse(HttpStatusCode.OK, createPersonResult);
+        }
+    }
+
+
+    public class CreatePersonResult
+    {
+        public string personId { get; set; }
+        public CreatePersonResult(string personIdString)
+        {
+            personId = personIdString;
         }
     }
 }
