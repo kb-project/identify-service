@@ -54,7 +54,7 @@ Azure Storage에 있는 파일 목록을 쉽게 확인하고 파일 추가 및 �
 * [Git 다운로드](https://git-scm.com/downloads)
 * [Git 사용법](http://rogerdudler.github.io/git-guide/index.ko.html)
 
-## Detail Information
+## Development Details
 
 ### Server-side
 1. [POST] api/persongroups/{PersonGroupId}/persons
@@ -70,25 +70,33 @@ Azure Storage에 있는 파일 목록을 쉽게 확인하고 파일 추가 및 �
 * return: FaceId
 
 Blob 스토리지에 이미지를 저장 (Blob/idcard)
--> Vision/OCR 호출한 후 JSON 데이터를 Queue에 전송 
--> Face API / Dectect를 호출한 후 FaceId 클라이언트에 반환 
+-> Vision API/OCR 호출한 후 JSON 데이터를 Queue에 전송 
+-> Face API/Dectect를 호출한 후 FaceId 클라이언트에 반환 
 
 3. [POST] api/photo
 
 * parameter: 이미지 전송
 
 -> Blob Storage에 사진파일 저장
--> PersonId 랑 Blob Storage URL, PersonGroupId 큐에 저장 
+-> Queue Storage에 **personGroupId, personId, blobUrl** 정보를 아래와 같은 포멧으로 저장 
+```
+Format 
+{
+    "personGroupId": "persongroup1",
+    "personId": "7573189b-eceb-4ff7-a95c-479d9cc34381",
+    "blobUrl": "https://kbdwrstorage.blob.core.windows.net/sample/%EC%A0%84%EC%A7%80%ED%98%841.jpg"
+}
+```
 
 4. [GET] api/persoungroup/{personGroupId}/training
 
 * parameter: personGroupId
-학습 완료 여부 알려줌 
+* return: 학습 완료 여부(T/F) 알려줌 
 
 5. [POST] api/verify
 
 * parameter: personGroupId, FaceId, PersonId
-동일인인지 여부 (퍼센트 소수점 숫자 반환)
+* return: 동일인인지 여부 (퍼센트 소수점 숫자 반환)
 
 ### Client-side
 1. [QueueTrigger] ocr
