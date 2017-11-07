@@ -62,23 +62,23 @@ Azure Storage에 있는 파일 목록을 쉽게 확인하고 파일 추가 및 �
 * parameter: PersonGroupId
 * return: PersonId
 ```
-    * 위의 API를 요청하면 다음과 같은 PersonId 리턴함
+* 위의 API를 요청하면 다음과 같은 PersonId 리턴함
 
 2. [POST] api/upload
 ```
 * parameter: 이미지 전송
 * return: FaceId
 ```
-    * Blob 스토리지에 이미지를 저장 (Blob/idcard)
-    * Vision API/OCR 호출한 후 JSON 데이터를 Queue에 전송 
-    * Face API/Dectect를 호출한 후 FaceId 클라이언트에 반환 
+* Blob 스토리지에 이미지를 저장 (Blob/idcard)
+* Vision API/OCR 호출한 후 JSON 데이터를 Queue에 전송 
+* Face API/Dectect를 호출한 후 FaceId 클라이언트에 반환 
 
 3. [POST] api/photo
 ```
 * parameter: 이미지 전송
 ```
-    * Blob Storage에 사진파일 저장
-    * Queue Storage에 **personGroupId, personId, blobUrl** 정보를 아래와 같은 포멧으로 저장 
+* Blob Storage에 사진파일 저장
+* Queue Storage에 **personGroupId, personId, blobUrl** 정보를 아래와 같은 포멧으로 저장 
 
 ```
 Format 
