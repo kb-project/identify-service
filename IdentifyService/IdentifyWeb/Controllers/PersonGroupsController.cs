@@ -26,7 +26,7 @@ namespace IdentifyWeb.Controllers
         {
             var client = new RestClient($"https://eastasia.api.cognitive.microsoft.com/face/v1.0/persongroups/{personGroupId}/persons");
             var request = new RestRequest(Method.POST);
-            request.AddHeader("ocp-apim-subscription-key", "d34788525010436ba92a2fdea1463ec4");
+            request.AddHeader("ocp-apim-subscription-key", CloudConfigurationManager.GetSetting("CognitiveServicesKeyFace"));
             request.AddHeader("content-type", "application/json");
 
             //GUID 생성 코드 추가
@@ -47,7 +47,7 @@ namespace IdentifyWeb.Controllers
         {
             var client = new RestClient("https://eastasia.api.cognitive.microsoft.com/face/v1.0/persongroups/"+personGroupId+"/training");
             var request = new RestRequest(Method.GET);
-            request.AddHeader("ocp-apim-subscription-key", "d34788525010436ba92a2fdea1463ec4");
+            request.AddHeader("ocp-apim-subscription-key", CloudConfigurationManager.GetSetting("CognitiveServicesKeyFace"));
             //request.AddHeader("content-type", "application/json");
 
             IRestResponse response = client.Execute(request);

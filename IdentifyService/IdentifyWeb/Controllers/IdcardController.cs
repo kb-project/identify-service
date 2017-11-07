@@ -18,6 +18,7 @@ using Microsoft.ProjectOxford.Common;
 using Newtonsoft;
 using Newtonsoft.Json;
 
+
 namespace IdentifyWeb.Controllers
 {
 
@@ -35,11 +36,6 @@ namespace IdentifyWeb.Controllers
 
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference("temp-idcard");
-            
-
-
-            // Now we're not going to use multipart/form-data. 
-            // Instead, upload image to temporary storage accound, and relay the url to Cognitive Services.
 
 
             // Check if the request contains multipart/form-data.
@@ -112,7 +108,10 @@ namespace IdentifyWeb.Controllers
                     //OCR 호출
                     List<string> contentsOcr = await CognitiveServiceCallAsync(urlBlob,
                         "https://eastasia.api.cognitive.microsoft.com/vision/v1.0/ocr?language=ko&detectOrientation=true",
-                        "601a9f2e62d043ca807f55060769b550");
+                         CloudConfigurationManager.GetSetting("CognitiveServicesKeyVision"));
+
+                    
+
 
                     //OCR 결과를 건별로 Queue에 넣음, trace 표시
                     foreach (string content in contentsOcr)
@@ -126,7 +125,7 @@ namespace IdentifyWeb.Controllers
                     //Face Detection 호출
                     List<string> contentsFace = await CognitiveServiceCallAsync(urlBlob,
                         "https://eastasia.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceAttributes=age,gender,headPose,glasses,accessories",
-                        "d34788525010436ba92a2fdea1463ec4");
+                        CloudConfigurationManager.GetSetting("CognitiveServicesKeyFace"));
 
                     //Face 결과를 trace 표시
                     foreach (string content in contentsFace)
