@@ -143,6 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\PersonController.cs" />
     <Compile Include="Controllers\IdcardController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -153,6 +154,7 @@
     <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\IdentifyWeb - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\kb-identifyweb - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\kbdwr-web - Web Deploy.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
