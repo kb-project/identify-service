@@ -31,11 +31,11 @@ namespace IdentifyWeb.Controllers
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
                 CloudConfigurationManager.GetSetting("StorageConnectionString"));
             CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
-            CloudQueue queue = queueClient.GetQueueReference("ocr");
+            CloudQueue queue = queueClient.GetQueueReference(CloudConfigurationManager.GetSetting("OcrQueueName"));
             queue.CreateIfNotExists();
 
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = blobClient.GetContainerReference("temp-idcard");
+            CloudBlobContainer container = blobClient.GetContainerReference(CloudConfigurationManager.GetSetting("TempBlobContainerNameIdcard"));
 
 
             // Check if the request contains multipart/form-data.
