@@ -13,7 +13,7 @@ namespace IdentifyWeb.Utility
     public class CognitiveServicesCallHelper
     {
         
-        public static async Task<List<string>> CognitiveServicePostAsync(string urlBlob, string urlServices, string key)
+        public static async Task<List<string>> CognitiveServicePostAsync(string key, string urlServices, string urlBlob)
         {
             try
             {

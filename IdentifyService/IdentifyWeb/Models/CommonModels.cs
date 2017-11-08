@@ -69,4 +69,30 @@ namespace IdentifyWeb.Models
             blobUrl = blobUrlString;
         }
     }
+
+    public class FaceVerifyRequestBody
+    {
+        public string faceId { get; set; }
+        public string personId { get; set; }
+        public string personGroupId { get; set; }
+        public FaceVerifyRequestBody(string faceIdString, string personIdString, string personGroupIdString)
+        { 
+            faceId = faceIdString;
+            personId = personIdString;
+            personGroupId = personGroupIdString;
+        }
+    }
+
+    public class FaceVerifyResponseBody
+    {
+        public string isIdentical { get; set; }
+        public double confidence { get; set; }
+        public FaceVerifyResponseBody(string isIdenticalString, double confidenceDouble)
+        {
+            isIdentical = isIdenticalString;
+            confidence = confidenceDouble;
+
+        }
+    }
+
 }

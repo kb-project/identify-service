@@ -52,9 +52,10 @@ namespace IdentifyWeb.Controllers
                 foreach (UrlBlob urlBlob in listUrlBlob)
                 {
                     //OCR 호출
-                    List<string> contentsOcr = await CognitiveServicesCallHelper.CognitiveServicePostAsync(urlBlob.url,
+                    List<string> contentsOcr = await CognitiveServicesCallHelper.CognitiveServicePostAsync(
+                        CloudConfigurationManager.GetSetting("CognitiveServicesKeyVision"),
                         "https://eastasia.api.cognitive.microsoft.com/vision/v1.0/ocr?language=ko&detectOrientation=true",
-                         CloudConfigurationManager.GetSetting("CognitiveServicesKeyVision"));
+                        urlBlob.url);
 
                     //OCR 결과를 건별로 Queue에 넣음, trace 표시
                     foreach (string content in contentsOcr)
@@ -66,9 +67,10 @@ namespace IdentifyWeb.Controllers
                     }
 
                     //Face Detection 호출
-                    List<string> contentsFace = await CognitiveServicesCallHelper.CognitiveServicePostAsync(urlBlob.url,
+                    List<string> contentsFace = await CognitiveServicesCallHelper.CognitiveServicePostAsync(
+                        CloudConfigurationManager.GetSetting("CognitiveServicesKeyVision"),
                         "https://eastasia.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceAttributes=age,gender,headPose,glasses,accessories",
-                        CloudConfigurationManager.GetSetting("CognitiveServicesKeyFace"));
+                        urlBlob.url);
 
                     //Face 결과를 trace 표시
                     foreach (string content in contentsFace)
