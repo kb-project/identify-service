@@ -24,6 +24,9 @@ using Windows.Storage.Streams;
 using Windows.Storage;
 using Windows.Graphics.Imaging;
 using Windows.Storage.FileProperties;
+using RestSharp.Portable.HttpClient;
+using RestSharp.Portable;
+using System.Net.Http;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -173,16 +176,46 @@ namespace IdentifyApp
             
             TakePhotoAsync();
             await StartPreviewAsync();
-            //await CleanupCameraAsync();
-            //await StartPreviewAsync();
+            
         }
 
         private async void confirmBtnClicked(object sender, RoutedEventArgs e)
         {
+            string faceId = "";
             await CleanupCameraAsync();
-            Frame.Navigate(typeof(FrontViewPage));
+            await Task.Run(() =>
+            {
+                faceId = httpRequest();
+            });
+               
+            Frame.Navigate(typeof(FrontViewPage),faceId);
         }
 
+        private string httpRequest()
+        {
+            var fileStream = new FileStream(@"C:\Users\Admin\Pictures\idcard.jpg", FileMode.Open);
+            HttpContent fileStreamContent = new StreamContent(fileStream);
+            string url = "http://kbdwr-web.azurewebsites.net/api/idcard";
+
+            
+            using (var client = new HttpClient())
+            using (var formData = new MultipartFormDataContent())
+            {
+                formData.Add(fileStreamContent, "idcard.jpg", "idcard.jpg");               
+                var response = client.PostAsync(url, formData).Result;
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    Debug.Write("http 요청 실패");
+                }
+
+                response.EnsureSuccessStatusCode();
+                client.Dispose();
+                return response.Content.ReadAsStringAsync().Result;  
+                
+            }     
+            
+        }
         //private void cameraStopBtnClicked(object sender, RoutedEventArgs e)
         //{
 

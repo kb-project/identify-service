@@ -13,7 +13,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0">
+        <StackPanel Height="100" Background="Beige" Grid.Row="0">
             <TextBlock Text="1. 신분증 촬영" Margin="10"/>
             <Button Content="사진촬영" Click="cameraBtnClicked" Margin="10"/>
             <!--<Button Content="촬영완료" Click="cameraStopBtnClicked" Margin="10"/>-->
@@ -21,8 +21,8 @@
         <StackPanel Grid.Row="1">
             <CaptureElement Name="PreviewControl" Stretch="Uniform"/>
         </StackPanel>
-        <StackPanel Grid.Row="2">
-            <Button Content="확인" Click="confirmBtnClicked"/>
+        <StackPanel Height="100" Background="Beige" Grid.Row="2">
+            <Button Content="확인" Click="confirmBtnClicked" Margin="10" VerticalAlignment="Center"/>
         </StackPanel>
     </Grid>
 </Page>

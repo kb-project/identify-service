@@ -1,4 +1,4 @@
-# Cogntive Service를 활용한 비대면 인증 시나리오 검토
+﻿# Cogntive Service를 활용한 비대면 인증 시나리오 검토
 
 Microsoft Cognitive Service는 마이크로소프트의 인공지능 기술을 개발자들이 쉽게 사용할 수 있도록 서비스화 해놓은 것 입니다. 간단히 API호출 만으로도 언어에 상관없이 편리하게 인지와 관련된 여러가지 서비스를 사용할 수 있습니다. 이번 프로젝트에서는 Cognitive Serivces 중에서도 Vision에 해당하는 서비스인 Computer Vision API와 Face API를 이용하여 신분증 만으로도 비대면 인증이 가능한지를 검토해 볼 예정입니다. 
 Cognitive Serivces와 관련된 자세한 정보는 아래에서 참고하실 수 있습니다. 
@@ -64,7 +64,7 @@ Azure Storage에 있는 파일 목록을 쉽게 확인하고 파일 추가 및 �
 ```
 * 위의 API를 요청하면 다음과 같은 PersonId 리턴함
 
-2. [POST] api/upload
+2. [POST] api/idcard
 ```
 * parameter: 이미지 전송
 * return: FaceId

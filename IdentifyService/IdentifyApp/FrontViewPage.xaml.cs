@@ -36,6 +36,7 @@ namespace IdentifyApp
     {
         MediaCapture mediaCapture;
         bool isPreviewing;
+        string faceId;
 
         DisplayRequest displayRequest = new DisplayRequest();
         public FrontViewPage()
@@ -172,5 +173,11 @@ namespace IdentifyApp
             TakePhotoAsync();
             await StartPreviewAsync();
         }
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            faceId = e.Parameter as string;
+        }
+
+
     }
 }

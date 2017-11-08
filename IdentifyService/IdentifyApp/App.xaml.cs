@@ -22,6 +22,7 @@ namespace IdentifyApp
     /// </summary>
     sealed partial class App : Application
     {
+        
         /// <summary>
         /// Singleton 응용 프로그램 개체를 초기화합니다. 이것은 실행되는 작성 코드의 첫 번째
         /// 줄이며 따라서 main() 또는 WinMain()과 논리적으로 동일합니다.
