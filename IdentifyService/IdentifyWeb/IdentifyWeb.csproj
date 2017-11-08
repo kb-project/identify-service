@@ -146,10 +146,12 @@
     <Compile Include="Controllers\PersonGroupsController.cs" />
     <Compile Include="Controllers\IdcardController.cs" />
     <Compile Include="Controllers\PhotoController.cs" />
+    <Compile Include="Controllers\VerifyController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\CommonModels.cs" />
+    <Compile Include="Utility\FaceVerifyHelper.cs" />
     <Compile Include="Utility\CognitiveServicesCallHelper.cs" />
     <Compile Include="Utility\MultipartFormdataStreamBlobUploader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
