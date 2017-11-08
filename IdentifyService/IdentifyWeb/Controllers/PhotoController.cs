@@ -43,19 +43,28 @@ namespace IdentifyWeb.Controllers
             listUrlBlob = await multipartFormdataStreamBlobUploader.UploadAttachedFileToBlobContainer(this.Request, blobPrefixString);
             #endregion
 
+            // 변수 만들기 PhotoUploadedResult
+            // try 안에서 할당
+            // 스텝4에서 활용
+            PhotoUploadedResult photoUploadedResult;
+
+            HttpResponseMessage message;
+
             #region Step3. 저장한 blob 위치를 json body로 반환
             try
             {
-                HttpResponseMessage message;
+           
                 if (listUrlBlob.Count > 0)
                 {
-                    message = Request.CreateResponse(HttpStatusCode.OK, new PhotoUploadedResult(personGroupId, personId, listUrlBlob[0].url));
+                    photoUploadedResult = new PhotoUploadedResult(personGroupId, personId, listUrlBlob[0].url); 
+                    message = Request.CreateResponse(HttpStatusCode.OK, photoUploadedResult);
                 }
                 else
                 {
-                    message = Request.CreateResponse(HttpStatusCode.OK, new PhotoUploadedResult(personGroupId, personId, ""));
+                    photoUploadedResult = new PhotoUploadedResult(personGroupId, personId,"");
+                    message = Request.CreateResponse(HttpStatusCode.OK, photoUploadedResult);
                 }
-                return message;
+       
             }
             catch (Exception e)
             {
@@ -64,9 +73,24 @@ namespace IdentifyWeb.Controllers
             }
             #endregion
 
-
             #region Step4. Queue에도 전송
 
+            try { 
+            
+            CloudQueueMessage messageQueue = new CloudQueueMessage(JsonConvert.SerializeObject(photoUploadedResult));
+            queue.AddMessage(messageQueue);
+
+            Trace.WriteLine("BlobInQueue: " + JsonConvert.SerializeObject(photoUploadedResult));
+
+            }
+            catch(Exception e)
+            {
+            Trace.WriteLine("Exception occurred while sending message to queue.");
+            return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
+            }
+
+            return message;
+            
             #endregion
         }
 
@@ -93,9 +117,5 @@ namespace IdentifyWeb.Controllers
 
             blobPrefixString = CloudConfigurationManager.GetSetting("TempBlobRelativeLocationPhoto");
         }
-
-
-
-
     }
 }
