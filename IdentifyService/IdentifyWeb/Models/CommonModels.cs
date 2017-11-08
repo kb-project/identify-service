@@ -56,4 +56,17 @@ namespace IdentifyWeb.Models
         public string message { get; set; }
 
     }
+
+    public class PhotoUploadedResult
+    {
+        public string personGroupId { get; set; }
+        public string personId { get; set; }
+        public string blobUrl { get; set; }
+        public PhotoUploadedResult(string personGroupIdString, string personIdString, string blobUrlString)
+        {
+            personGroupId = personGroupIdString;
+            personId = personIdString;
+            blobUrl = blobUrlString;
+        }
+    }
 }

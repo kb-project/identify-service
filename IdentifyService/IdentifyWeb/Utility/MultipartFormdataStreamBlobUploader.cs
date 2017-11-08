@@ -28,13 +28,13 @@ namespace IdentifyWeb
         }
 
 
-        public async Task<List<UrlBlob>> UploadAttachedFileToBlobContainer(HttpRequestMessage Request)
+        public async Task<List<UrlBlob>> UploadAttachedFileToBlobContainer(HttpRequestMessage Request, string blobLocationString)
         {
             //Step1. Copy Attached File to App_Data folder (in web apps)
             await CopyAttachedFileToMapPathAsync(Request);
 
             //Step2. Upload image to temporary storage account
-            return UploadMapPathFilesToTempBlobContainer();
+            return UploadMapPathFilesToTempBlobContainer(blobLocationString);
         }
 
         internal async Task<string> CopyAttachedFileToMapPathAsync(HttpRequestMessage Request)
@@ -55,7 +55,7 @@ namespace IdentifyWeb
         }
 
 
-        private List<UrlBlob> UploadMapPathFilesToTempBlobContainer()
+        private List<UrlBlob> UploadMapPathFilesToTempBlobContainer(string blobPrefixString)
         {
             List<UrlBlob> listUrlBlob = new List<UrlBlob>();
 
@@ -68,7 +68,7 @@ namespace IdentifyWeb
                     Trace.WriteLine("Server file path: " + file.LocalFileName);
 
                     //set blob name: only use filename excluding folder location
-                    string blobname = $"{CloudConfigurationManager.GetSetting("TempBlobRelativeLocationIdcard")}/{file.LocalFileName.Substring(file.LocalFileName.LastIndexOf("\\") + 1)}";
+                    string blobname = $"{blobPrefixString}/{file.LocalFileName.Substring(file.LocalFileName.LastIndexOf("\\") + 1)}";
                     CloudBlockBlob blob = _container.GetBlockBlobReference(blobname);
                     blob.UploadFromFile(file.LocalFileName);
 

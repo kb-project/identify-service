@@ -34,6 +34,7 @@ namespace IdentifyWeb.Controllers
         MultipartFormDataStreamProvider provider;
 
         List<UrlBlob> listUrlBlob;
+        string blobPrefixString;
 
         [HttpPost]
         public async Task<HttpResponseMessage> ProcessIdcardPostAsync()
@@ -42,7 +43,7 @@ namespace IdentifyWeb.Controllers
 
             #region Step1-Step2. 첨부된 파일을 Web App의 Map Path에 복사하고, 이를 Blob Container에 업로드
             MultipartFormdataStreamBlobUploader multipartFormdataStreamBlobUploader = new MultipartFormdataStreamBlobUploader(provider, storageAccount, container);
-            listUrlBlob = await multipartFormdataStreamBlobUploader.UploadAttachedFileToBlobContainer(this.Request);
+            listUrlBlob = await multipartFormdataStreamBlobUploader.UploadAttachedFileToBlobContainer(this.Request, blobPrefixString);
             #endregion
 
             #region Step3. 저장한 blob 위치를 인지서비스에 전달하여 OCR 및 Face 정보 추출
@@ -115,6 +116,8 @@ namespace IdentifyWeb.Controllers
 
             string root = HttpContext.Current.Server.MapPath("~/App_Data");
             provider = new MultipartFormDataStreamProvider(root);
+
+            blobPrefixString = CloudConfigurationManager.GetSetting("TempBlobRelativeLocationIdcard");
 
         }
 
