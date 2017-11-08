@@ -73,7 +73,6 @@ namespace IdentifyWeb.Controllers
             }
             #endregion
 
-
             #region Step4. Queue에도 전송
 
             try { 
@@ -118,9 +117,5 @@ namespace IdentifyWeb.Controllers
 
             blobPrefixString = CloudConfigurationManager.GetSetting("TempBlobRelativeLocationPhoto");
         }
-
-
-
-
     }
 }

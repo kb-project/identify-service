@@ -16,7 +16,6 @@ namespace IdentifyWeb.Controllers
 {
     public class VerifyController : ApiController
     {
-
         List<UrlBlob> listUrlBlob;
         string blobPrefixString;
 
@@ -27,7 +26,7 @@ namespace IdentifyWeb.Controllers
         {
             InitEnvironment();
 
-            #region Step3. 저장한 verify결과를 json body로 반환
+            #region 저장한 verify결과를 json body로 반환
             try
             {
 
@@ -46,7 +45,6 @@ namespace IdentifyWeb.Controllers
                 {
                     return Request.CreateResponse(response.StatusCode, response.Content);
                 }
-
                
             }
             catch (Exception e)
@@ -55,14 +53,11 @@ namespace IdentifyWeb.Controllers
                 return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
             }
             #endregion
-
-
         }
 
         private void InitEnvironment()
         {
-                 
+            //do nothing
         }
-
     }
 }

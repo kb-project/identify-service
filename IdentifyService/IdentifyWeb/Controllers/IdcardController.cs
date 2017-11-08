@@ -22,8 +22,6 @@ using IdentifyWeb.Utility;
 
 namespace IdentifyWeb.Controllers
 {
-
-
     public class IdcardController : ApiController
     {
         CloudStorageAccount storageAccount;
@@ -120,10 +118,6 @@ namespace IdentifyWeb.Controllers
             provider = new MultipartFormDataStreamProvider(root);
 
             blobPrefixString = CloudConfigurationManager.GetSetting("TempBlobRelativeLocationIdcard");
-
         }
-
-
     }
-    
 }

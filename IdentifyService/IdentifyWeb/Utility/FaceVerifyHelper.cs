@@ -15,8 +15,7 @@ namespace IdentifyWeb.Utility
     {
         
         public static async Task<IRestResponse> FaceVerifyPostAsync(string key, string faceId, string personId, string personGroupId)
-        {
-
+        { 
             try
             {
                 List<string> contents = new List<string>();
@@ -27,18 +26,13 @@ namespace IdentifyWeb.Utility
                 request.AddHeader("ocp-apim-subscription-key", key);
                 request.AddHeader("content-type", "application/json");
 
-        
                 Trace.WriteLine(JsonConvert.SerializeObject(new FaceVerifyRequestBody(faceId, personId, personGroupId)));
                 request.AddParameter("application/json", JsonConvert.SerializeObject(new FaceVerifyRequestBody(faceId, personId, personGroupId)), ParameterType.RequestBody);
 
                 IRestResponse response = client.Execute(request);
                 Trace.WriteLine(response.Content);
 
- 
-    
-
                 return response;
-
             }
             catch (System.Exception e)
             {
