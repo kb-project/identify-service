@@ -7,29 +7,31 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid Background="#0078d7">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Height="100" Background="Beige" Grid.Row="0">
-            <TextBlock Text="2. 본인 얼굴 사진 촬영" Margin="10"/>
+        <StackPanel Height="50" Grid.Row="0">
+            <TextBlock Text="2. 본인 얼굴 사진 촬영" Foreground="White" FontSize="16" Margin="10"/>
             
         </StackPanel>
         <StackPanel Grid.Row="1">
-            <TextBlock x:Name="GuideMessage" Text="Step1. 정면을 바라봐 주세요" Margin="10"/>
+            <TextBlock x:Name="GuideMessage" Text="Step1. 정면을 바라봐 주세요" Foreground="White" FontSize="16" Margin="10"/>
             <!--Camera preview-->
+
             <CaptureElement x:Name="PreviewControl" Stretch="Uniform"/>
             <!--<TextBlock Text="미리보기" Margin="10"/>-->
             <Image x:Name="ImageControl" Stretch="Uniform" />
         </StackPanel>
-        <StackPanel Height="100" Background="Beige" Grid.Row="2" Orientation="Vertical">
+
+        <StackPanel  Grid.Row="2" Height="150" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
             <!--<TextBlock Text="확인 메세지" Margin="10"/>-->
-            <Button Content="사진촬영 / 재촬영" Margin="10" Click="takePhotoBtnClicked"/>
-            <Button x:Name="ConfirmBtn" Content="확인" Margin="10" Click="confirmBtnClicked" Visibility="Collapsed"/>
-            <Button x:Name="NextPageBtn" Content="다음 페이지로... >>" Margin="10" Click="NextBtnClicked" Visibility="Collapsed"/>
+            <Button Content="사진촬영 / 재촬영" Width="200" Margin="10" Foreground="White" FontSize="16" Click="takePhotoBtnClicked"/>
+            <Button x:Name="ConfirmBtn" Width="200" Content="확인" Margin="10" Foreground="White" FontSize="16" Click="confirmBtnClicked" Visibility="Collapsed"/>
+            <Button x:Name="NextPageBtn" Width="200" Content="다음 페이지로... >>" Margin="10" Foreground="White" FontSize="16" Click="NextBtnClicked" Visibility="Collapsed"/>
         </StackPanel>
     </Grid>
 </Page>

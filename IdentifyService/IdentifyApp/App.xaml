@@ -4,5 +4,79 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:IdentifyApp"
     RequestedTheme="Light">
+    <Application.Resources>
+        <ResourceDictionary>
+            <Style TargetType="Button" x:Key="MyButtonStyle">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate>
+                            <Grid>
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal"/>
+                                        <VisualState x:Name="Pressed">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(Grid.Row)" Storyboard.TargetName="grid">
+                                                    <DiscreteObjectKeyFrame KeyTime="0">
+                                                        <DiscreteObjectKeyFrame.Value>
+                                                            <x:Int32>1</x:Int32>
+                                                        </DiscreteObjectKeyFrame.Value>
+                                                    </DiscreteObjectKeyFrame>
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="PointerOver"/>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition Height="7*"/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <Grid Margin="0" Grid.RowSpan="2" Grid.Row="1">
+                                        <Border
+                                        BorderBrush="{TemplateBinding Background}"
+                                        BorderThickness="1"
+                                        CornerRadius="6"
+                                        Background="{TemplateBinding Background}"/>
+                                        <Border Background="Black" Opacity="0.25" BorderBrush="Black" CornerRadius="6"/>
+                                    </Grid>
+                                    <Grid x:Name="grid" Margin="0" Grid.Row="0" Grid.RowSpan="2">
+                                        <Border
+                                    BorderBrush="{TemplateBinding Background}"
+                                    BorderThickness="1"
+                                    CornerRadius="6"
+                                    Background="{TemplateBinding Background}"/>
 
+                                        <ContentPresenter>
+                                            <TextBlock
+                                       FontFamily="{TemplateBinding FontFamily}"
+                                        SelectionHighlightColor="{TemplateBinding Foreground}"
+                                        FontSize="{TemplateBinding FontSize}"
+                                        Foreground="{TemplateBinding Foreground}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Height="Auto"
+                                        Width="Auto"
+                                        Text="{Binding Content, RelativeSource={RelativeSource Mode=TemplatedParent}}"/>
+                                        </ContentPresenter>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style TargetType="Button" x:Key="GreenStyle">
+                <Setter Property="FontFamily" Value="Segoe UI"/>
+                <Setter Property="FontSize" Value="16"/>
+               
+                <Setter Property="BorderBrush" Value="Blue"/>
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="Foreground" Value="Blue"/>
+            </Style>
+
+        </ResourceDictionary>
+    </Application.Resources>
 </Application>
