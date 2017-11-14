@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2006
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunctionApp1", "FunctionApp1\FunctionApp1.csproj", "{497F96F7-BCF1-468A-AA1A-1F273211FDB1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kbdwrfunctions", "kbdwrfunctions\kbdwrfunctions.csproj", "{69166D69-3A75-4CA0-A285-3ABDF9CD86E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{497F96F7-BCF1-468A-AA1A-1F273211FDB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{497F96F7-BCF1-468A-AA1A-1F273211FDB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{497F96F7-BCF1-468A-AA1A-1F273211FDB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{497F96F7-BCF1-468A-AA1A-1F273211FDB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69166D69-3A75-4CA0-A285-3ABDF9CD86E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69166D69-3A75-4CA0-A285-3ABDF9CD86E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69166D69-3A75-4CA0-A285-3ABDF9CD86E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69166D69-3A75-4CA0-A285-3ABDF9CD86E9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {401A2B67-41FC-4F3D-B825-8B4CD6009D7E}
+		SolutionGuid = {15BDE41C-FCD8-4BEF-99B2-EC4F59885A2A}
 	EndGlobalSection
 EndGlobal

@@ -3,12 +3,12 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Newtonsoft.Json;
 
-namespace FunctionApp1
+namespace kbdwrfunctions
 {
-    public static class BindingTable
+    public static class ProcessOcr
     {
-        [FunctionName("BindingTableEunk")]
-        public static void Run2([QueueTrigger("ocr-test", Connection = "BlobConnection")]string myQueueItem, [Table("test", Connection = "TableConnection")]ICollector<Ocr> tableBinding, TraceWriter log)
+        [FunctionName("ProcessOcr")]
+        public static void Run([QueueTrigger("ocr", Connection = "BlobConnection")]string myQueueItem, [Table("ocr", Connection = "BlobConnection")]ICollector<Ocr> tableBinding, TraceWriter log)
         {
             log.Info($"C# Queue trigger function processed: {myQueueItem}");
             var jsontext = myQueueItem;
@@ -27,7 +27,7 @@ namespace FunctionApp1
             }
 
             Guid guid = Guid.NewGuid();
-            
+
             tableBinding.Add(new Ocr()
             {
                 PartitionKey = guid.ToString(),
@@ -38,13 +38,11 @@ namespace FunctionApp1
 
             log.Info(ocrResult);
         }
-
-
-        public class Ocr
-        {
-            public string PartitionKey { get; set; }
-            public string RowKey { get; set; }
-            public string OcrResult { get; set; }
-        }
+    }
+    public class Ocr
+    {
+        public string PartitionKey { get; set; }
+        public string RowKey { get; set; }
+        public string OcrResult { get; set; }
     }
 }
