@@ -27,6 +27,8 @@ using Windows.Storage.FileProperties;
 using RestSharp.Portable.HttpClient;
 using RestSharp.Portable;
 using System.Net.Http;
+using IdentifyApp.Model;
+using Newtonsoft.Json;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -39,7 +41,7 @@ namespace IdentifyApp
     {
         MediaCapture mediaCapture;
         bool isPreviewing;
-
+        PersonInfo personInfo = new PersonInfo();
         DisplayRequest displayRequest = new DisplayRequest();
 
         public IdcardPage()
@@ -181,23 +183,43 @@ namespace IdentifyApp
 
         private async void confirmBtnClicked(object sender, RoutedEventArgs e)
         {
-            string faceId = "";
+            
             await CleanupCameraAsync();
             await Task.Run(() =>
             {
-                faceId = httpRequest();
+                personInfo.faceId = httpIdcardRequest();
+                personInfo.personId = httpPersonRequest();
             });
                
-            Frame.Navigate(typeof(FrontViewPage),faceId);
+            Frame.Navigate(typeof(FrontViewPage),personInfo);
         }
 
-        private string httpRequest()
+        private string httpPersonRequest()
+        {
+            using (var client = new HttpClient())
+            {
+
+                string url = "http://kbdwr-web.azurewebsites.net/api/persongroups/persongroup1/persons";
+                var response = client.PostAsync(url, new StringContent("")).Result;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    //return false;
+                }
+
+                string jsonReturn = response.Content.ReadAsStringAsync().Result;
+                return parsePersonJson(jsonReturn);
+                //return true;
+
+            }
+        }
+
+        private string httpIdcardRequest()
         {
             var fileStream = new FileStream(@"C:\Users\Admin\Pictures\idcard.jpg", FileMode.Open);
             HttpContent fileStreamContent = new StreamContent(fileStream);
             string url = "http://kbdwr-web.azurewebsites.net/api/idcard";
-
-            
+                        
             using (var client = new HttpClient())
             using (var formData = new MultipartFormDataContent())
             {
@@ -211,10 +233,25 @@ namespace IdentifyApp
 
                 response.EnsureSuccessStatusCode();
                 client.Dispose();
-                return response.Content.ReadAsStringAsync().Result;  
+                string jsonReturn = response.Content.ReadAsStringAsync().Result;
+                return parseFaceJson(jsonReturn);  
                 
             }     
             
+        }
+
+        public string parseFaceJson(string json)
+        {
+            FaceId myFace = new FaceId();
+            FaceId deserializedFaceId = JsonConvert.DeserializeObject<FaceId>(json);
+            return deserializedFaceId.faceId;
+        }
+
+        public string parsePersonJson(string json)
+        {
+            PersonId myFace = new PersonId();
+            PersonId deserializedFaceId = JsonConvert.DeserializeObject<PersonId>(json);
+            return deserializedFaceId.personId;
         }
         //private void cameraStopBtnClicked(object sender, RoutedEventArgs e)
         //{

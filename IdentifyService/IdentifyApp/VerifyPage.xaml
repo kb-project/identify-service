@@ -11,7 +11,7 @@
        
     </Grid>-->
     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-        <TextBlock Text="확인되었습니다" ></TextBlock>
-        <TextBlock Text="인증에 실패하였습니다" Name="notVerifyTxt" Visibility="Visible"></TextBlock>
+        <TextBlock Text="확인되었습니다" x:Name="verifyTxt" Visibility="Collapsed"></TextBlock>
+        <TextBlock Text="인증에 실패하였습니다" Name="notVerifyTxt" Visibility="Collapsed"></TextBlock>
     </StackPanel>
 </Page>

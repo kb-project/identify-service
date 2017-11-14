@@ -1,8 +1,10 @@
-﻿using System;
+﻿using IdentifyApp.Model;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -36,7 +38,9 @@ namespace IdentifyApp
     {
         MediaCapture mediaCapture;
         bool isPreviewing;
+        string personId;
         string faceId;
+        PersonInfo personInfo = new PersonInfo();
 
         DisplayRequest displayRequest = new DisplayRequest();
         public FrontViewPage()
@@ -163,21 +167,55 @@ namespace IdentifyApp
         }
 
 
-        private void confirmBtnClicked(object sender, RoutedEventArgs e)
+        private async void confirmBtnClicked(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(RightViewPage));
+            await CleanupCameraAsync();
+            await Task.Run(() =>
+            {
+                httpRequest();
+            });
+            Frame.Navigate(typeof(RightViewPage), faceId);
         }
 
         private async void takePhotoBtnClicked(object sender, RoutedEventArgs e)
         {
             TakePhotoAsync();
+
             await StartPreviewAsync();
         }
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            faceId = e.Parameter as string;
+            PersonInfo myPerson = e.Parameter as PersonInfo;
+            faceId = myPerson.faceId;
+            personId = myPerson.personId;
+
         }
 
+        private void httpRequest()
+        {
+            var fileStream = new FileStream(@"C:\Users\Admin\Pictures\frontview.jpg", FileMode.Open);
+            HttpContent fileStreamContent = new StreamContent(fileStream);
+            string url = "http://kbdwr-web.azurewebsites.net/api/photo/persongroup1/" + faceId;
 
+            using (var client = new HttpClient())
+            using (var formData = new MultipartFormDataContent())
+            {
+                formData.Add(fileStreamContent, "frontview.jpg", "frontview.jpg");
+                var response = client.PostAsync(url, formData).Result;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    Debug.Write("http 요청 실패");
+                }
+
+                response.EnsureSuccessStatusCode();
+                client.Dispose();
+                Debug.Write(response.Content.ReadAsStringAsync().Result);
+
+
+            }
+
+
+        }
     }
 }
