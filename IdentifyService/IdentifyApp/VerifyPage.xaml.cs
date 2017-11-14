@@ -1,14 +1,19 @@
-﻿using IdentifyApp.Model;
-using RestSharp.Portable;
-using RestSharp.Portable.HttpClient;
+﻿using IdentifyApp.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading;
+using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -16,6 +21,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Windows.Web.Http.Filters;
 
 // 빈 페이지 항목 템플릿에 대한 설명은 https://go.microsoft.com/fwlink/?LinkId=234238에 나와 있습니다.
 
@@ -26,70 +32,132 @@ namespace IdentifyApp
     /// </summary>
     public sealed partial class VerifyPage : Page
     {
-        public string faceId = "";
-        public string personId = "";
+        Person person = new Person();
+        VerifyResult verify = new VerifyResult();
+       
+        private const int TotalNumberOfAttempts = 10;
+       
         public VerifyPage()
-        {            
-            this.InitializeComponent();
-            verify();
+        {
+            this.InitializeComponent();        
+        }
+        
+
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            // Parameter로 넘겨 받은 값 저장
+            person = (Person)e.Parameter;
+            var dispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
+            var taskCompletionSource = new TaskCompletionSource<bool>();
+            
+            await dispatcher.RunAsync(CoreDispatcherPriority.High, async () =>            
+            {
+                int maxRetry = 5;
+                do
+                {
+                    --maxRetry;
+                    string requestUrl = App.baseUrl + "/persongroups/" + person.personGroupId + "/training";
+                    using (var client = new HttpClient())
+                    {
+                        var response = client.GetAsync(requestUrl).Result;
+
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            Debug.WriteLine("Http 요청에 실패했습니다.");
+                        }
+
+                        response.EnsureSuccessStatusCode();
+                        
+                        // JSON 리턴 값 저장 
+                        var jsonResult = response.Content.ReadAsStringAsync().Result;
+
+                        string trainResult = JsonConvert.DeserializeObject<TrainingResult>(jsonResult).status;
+
+                        if (trainResult == "succeeded")
+                        {
+                            Debug.WriteLine("Training 이 완료되었습니다!");
+                            taskCompletionSource.SetResult(true);
+                            return;                            
+                        }
+                        else
+                        {
+                            Debug.WriteLine("아직 Training이 완료되지 않았습니다!");
+                            //2초후 재시도 
+                            await Task.Delay(2000);
+                        }
+                    }
+                } while (maxRetry>0);                
+            });
+            await taskCompletionSource.Task;
+
+            await dispatcher.RunAsync(CoreDispatcherPriority.High, () =>
+            {
+                verifyRequest();
+            });
+            
         }
 
-        private void verify()
+
+
+        private async void verifyRequest()
         {
-            if (httpGet())
+            int maxRetry = 10;
+            
+            do
             {
-                if (httpPost())
+                --maxRetry;
+                using (var client = new HttpClient())
                 {
-                    //학습이 완료되었구, 동일인이라고 판정되면 
-                    verifyTxt.Visibility = Visibility.Visible;
+                    string requestUrl = App.baseUrl + "/verify/" + person.personGroupId + "/" + person.personId + "/" + person.faceId;
+                    Debug.WriteLine(requestUrl);
+
+                    await client.PostAsync(requestUrl, null);
+                    var response = client.PostAsync(requestUrl, null).Result;
                     
+                    if(response.IsSuccessStatusCode)
+                    {
+                        client.Dispose();
+
+                        // JSON 리턴 값 저장 
+                        var jsonResult = response.Content.ReadAsStringAsync().Result;
+
+                        // JSON 파싱
+                        verify = JsonConvert.DeserializeObject<VerifyResult>(jsonResult);
+
+                        if (verify.isIdentical)
+                        {
+                            Debug.WriteLine(verify.confidence);
+                            checkResultTxt.Visibility = Visibility.Collapsed;
+                            progress1.Visibility = Visibility.Collapsed;
+                            VerifyTxt.Visibility = Visibility.Visible;
+                            return;
+                        }
+                        else
+                        {
+                            Debug.WriteLine(verify.confidence);
+                            checkResultTxt.Visibility = Visibility.Collapsed;
+                            progress1.Visibility = Visibility.Collapsed;
+                            notVerifyTxt.Visibility = Visibility.Visible;
+                            return;
+                        }
+                    }                    
+
+                    await Task.Delay(3000);
+                    Debug.WriteLine("3초후 재시도!");
                 }
 
-                //학습이 완료되었지만, 동일인이 아니라고 판정되면
-                notVerifyTxt.Visibility = Visibility.Visible;
-            }
-
-        }
-
-        private bool httpGet()
-        {
-            using (var client = new HttpClient())
-            {               
-                string url = "http://kbdwr-web.azurewebsites.net/api/persongroups/persongroup1/training";
-                var response = client.GetAsync(url).Result;
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    return false;
-                }
-
-                return true;
-            }
-        }
-
-        private bool httpPost()
-        {
-            using(var client = new HttpClient())
+            } while (maxRetry > 0); 
+            
+            if(maxRetry == 0)
             {
-                
-                string url = "http://kbdwr-web.azurewebsites.net/api/verify/persongroup1/"+personId+"/"+faceId;
-                var response = client.PostAsync(url, new StringContent("")).Result;
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    return false;
-                }
-
-                return true;
-
+                checkResultTxt.Visibility = Visibility.Collapsed;
+                progress1.Visibility = Visibility.Collapsed;
+                serviceErrorTxt.Visibility = Visibility.Visible;
             }
-        }
+        }  
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            PersonInfo myPerson = e.Parameter as PersonInfo;
-            faceId = myPerson.faceId;
-            personId = myPerson.personId;
-        }
+      
     }
+
+   
 }

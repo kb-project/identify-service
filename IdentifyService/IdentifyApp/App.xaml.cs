@@ -22,6 +22,7 @@ namespace IdentifyApp
     /// </summary>
     sealed partial class App : Application
     {
+        public static string baseUrl = "http://kbdwr-web.azurewebsites.net/api";
         
         /// <summary>
         /// Singleton 응용 프로그램 개체를 초기화합니다. 이것은 실행되는 작성 코드의 첫 번째
@@ -31,6 +32,8 @@ namespace IdentifyApp
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+
+            
         }
 
         /// <summary>
@@ -40,6 +43,7 @@ namespace IdentifyApp
         /// <param name="e">시작 요청 및 프로세스에 대한 정보입니다.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
+            
             Frame rootFrame = Window.Current.Content as Frame;
 
             // 창에 콘텐츠가 이미 있는 경우 앱 초기화를 반복하지 말고,
@@ -67,7 +71,7 @@ namespace IdentifyApp
                     // 탐색 스택이 복원되지 않으면 첫 번째 페이지로 돌아가고
                     // 필요한 정보를 탐색 매개 변수로 전달하여 새 페이지를
                     // 구성합니다.
-                    rootFrame.Navigate(typeof(IdcardPage), e.Arguments);
+                    rootFrame.Navigate(typeof(MainPage), e.Arguments);
                 }
                 // 현재 창이 활성 창인지 확인
                 Window.Current.Activate();

@@ -11,7 +11,15 @@
        
     </Grid>-->
     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-        <TextBlock Text="확인되었습니다" x:Name="verifyTxt" Visibility="Collapsed"></TextBlock>
-        <TextBlock Text="인증에 실패하였습니다" Name="notVerifyTxt" Visibility="Collapsed"></TextBlock>
+        <StackPanel Orientation="Vertical">
+            <!--<ToggleSwitch Header="Toggle Switch Example" OffContent="Do work" 
+                              OnContent="Working" Toggled="ToggleSwitch_Toggled"/>-->
+            <TextBlock Text="결과 확인중" x:Name="checkResultTxt"/>
+            <ProgressRing x:Name="progress1" IsActive="True"/>
+            <TextBlock Text="확인되었습니다" Name="VerifyTxt" Visibility="Collapsed"></TextBlock>
+            <TextBlock Text="인증에 실패하였습니다" Name="notVerifyTxt" Visibility="Collapsed"></TextBlock>
+            <TextBlock Text="일시적인 장애로 인증을 수행하지 못했습니다" Name="serviceErrorTxt" Visibility="Collapsed"></TextBlock>
+        </StackPanel>
+        
     </StackPanel>
 </Page>

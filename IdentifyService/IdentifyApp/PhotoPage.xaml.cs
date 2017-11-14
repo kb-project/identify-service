@@ -1,65 +1,69 @@
-﻿using System;
+﻿using IdentifyApp.Helpers;
+using IdentifyApp.Models;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
-using Windows.Devices.Enumeration;
 using Windows.Foundation;
-using Windows.Foundation.Metadata;
-using Windows.Graphics.Display;
-using Windows.Graphics.Imaging;
-using Windows.Media;
+using Windows.Foundation.Collections;
 using Windows.Media.Capture;
 using Windows.Media.MediaProperties;
-using Windows.Phone.UI.Input;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
-using Windows.System.Display;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
-using IdentifyApp;
-using IdentifyApp.Models;
-using Newtonsoft.Json;
-using IdentifyApp.Helpers;
-
-// 빈 페이지 항목 템플릿에 대한 설명은 https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x412에 나와 있습니다.
+// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
 namespace IdentifyApp
 {
     /// <summary>
-    /// 자체적으로 사용하거나 프레임 내에서 탐색할 수 있는 빈 페이지입니다.
+    /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MainPage : Page
+    public sealed partial class PhotoPage : Page
     {
         //개체 초기화
         private StorageFolder _captureFolder = null;
-        
+
         private MediaCapture _mediaCapture;
         private bool _isInitialized;
         private bool _isPreviewing;
         private string imagePath;
-        private string imageFileName = "idcard.jpg";
-
+        private string frontFaceImageName = "frontFace.jpg";
+        private string RightFaceImageName = "RightFace.jpg";
+        private string LeftFaceImageName = "LeftFace.jpg";
+        private string imageFileName;
         Person person = new Person();
 
-
-        public MainPage()
+        private int stepNum = 1;
+        public PhotoPage()
         {
-            this.InitializeComponent();            
+
+            this.InitializeComponent();
+            createPersonId();
+            
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             Application.Current.Suspending += Application_Suspending;
             Application.Current.Suspending += Application_Resuming;
+
+            person = (Person)e.Parameter;
+            createPersonId();
 
             await InitializeCameraAsync();
         }
@@ -89,14 +93,15 @@ namespace IdentifyApp
                 await InitializeCameraAsync();
             });
         }
+
         private async Task InitializeCameraAsync()
         {
             Debug.WriteLine("InitializeCameraAsync");
-            if(_mediaCapture == null)
+            if (_mediaCapture == null)
             {
                 var cameraDevice = await CameraHelper.FindCameraDeviceByPanelAsync(Windows.Devices.Enumeration.Panel.Back);
 
-                if(cameraDevice == null)
+                if (cameraDevice == null)
                 {
                     Debug.WriteLine("No camera device found!");
                     return;
@@ -104,7 +109,7 @@ namespace IdentifyApp
 
                 _mediaCapture = new MediaCapture();
                 _mediaCapture.Failed += MediaCapture_Failed;
-                
+
                 try
                 {
                     await _mediaCapture.InitializeAsync();
@@ -117,17 +122,17 @@ namespace IdentifyApp
                 }
 
                 if (_isInitialized)
-                {                    
+                {
                     await StartPreviewAsync();
                 }
-            }            
+            }
         }
 
         private async Task StartPreviewAsync()
         {
             // Set the preview source in the UI and mirror it if necessary
             PreviewControl.Source = _mediaCapture;
-            
+
             // preview 시작
             await _mediaCapture.StartPreviewAsync();
             _isPreviewing = true;
@@ -171,6 +176,20 @@ namespace IdentifyApp
 
         private async void TakePhotoAsync()
         {
+            // 단계에 따라 저장되는 사진 이름이 다름            
+            if(stepNum == 1)
+            {
+                imageFileName = frontFaceImageName;
+            }
+            else if(stepNum == 2)
+            {
+                imageFileName = RightFaceImageName;
+            }
+            else
+            {
+                imageFileName = LeftFaceImageName;
+            }
+
             var stream = new InMemoryRandomAccessStream(); ;
 
             Debug.WriteLine("Taking Photo...");
@@ -181,63 +200,66 @@ namespace IdentifyApp
             await _mediaCapture.CapturePhotoToStreamAsync(ImageEncodingProperties.CreateJpeg(), stream);
 
             try
-            {                
+            {
                 var file = await _captureFolder.CreateFileAsync(imageFileName, CreationCollisionOption.ReplaceExisting);
                 Debug.WriteLine("사진이 찍혔고, 다음 위치에 저장될 예정입니다 : " + file.Path);
-                imagePath = file.Path;                
+                imagePath = file.Path;
 
                 //XAML에서 사진 미리 보여주고 뒤이어 바로 사진저장
                 await CameraHelper.ReencodeAndSavePhotoAsync(stream, file);
                 Debug.WriteLine("사진이 저장되었습니다");
 
-                using(IRandomAccessStream fileStream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read))
+                using (IRandomAccessStream fileStream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read))
                 {
                     BitmapImage bitmapImage = new BitmapImage();
                     await bitmapImage.SetSourceAsync(fileStream);
-                    imageControl.Source = bitmapImage;
-                    
+                    ImageControl.Source = bitmapImage;
+
                 }
                 Debug.WriteLine("사진을 미리봅니다");
             }
             catch (Exception ex)
             {
                 Debug.WriteLine("사진을 찍는동안 문제가 발생하였습니다: " + ex.ToString());
-            }            
+            }
         }
 
-        private void takePhotoBtnClicked(object sender, RoutedEventArgs e)
-        {            
-            TakePhotoAsync();           
-        }
-
-        private async void confirmBtnClicked(object sender, RoutedEventArgs e)
+        // PersonId 생성
+        private void createPersonId()
         {
-            // api/idcard 요청 및 faceId 저장
-            await Task.Run(() =>
+            string requestUrl = App.baseUrl + "/persongroups/" + person.personGroupId + "/persons";
+            using (var client = new HttpClient())
             {
-                httpPost();
-            });
-                        
-            if (person.faceId != null)
-            {
-                await CleanupCameraAsync();
+                var response = client.PostAsync(requestUrl, null).Result;
 
-                // 다음 페이지로 이동
-                Frame.Navigate(typeof(PhotoPage), person);                
-            }            
+                if (!response.IsSuccessStatusCode)
+                {
+                    Debug.WriteLine("Http 요청에 실패했습니다.");
+                }
+
+                response.EnsureSuccessStatusCode();
+                client.Dispose();
+
+                // JSON 리턴 값 저장 
+                var jsonResult = response.Content.ReadAsStringAsync().Result;
+
+                // JSON 파싱
+                person.personId = JsonConvert.DeserializeObject<Person>(jsonResult).personId;
+                Debug.WriteLine(person.personId);
+
+            }
         }
 
-        private void httpPost()
+        private void sendPhoto()
         {
-            // 찍은 사진을 불러온 후..
-           using (var fileStream = new FileStream(imagePath, FileMode.Open))
+            string requestUrl = App.baseUrl + "/photo/" + person.personGroupId + "/" + person.personId;
+
+            using (var fileStream = new FileStream(imagePath, FileMode.Open))
             {
                 HttpContent fileStreamContent = new StreamContent(fileStream);
                 using (var client = new HttpClient())
                 using (var formData = new MultipartFormDataContent())
-                {
-                    string requestUrl = App.baseUrl + "/idcard";
-
+                {   
                     formData.Add(fileStreamContent, imageFileName, imageFileName);
                     var response = client.PostAsync(requestUrl, formData).Result;
 
@@ -253,11 +275,55 @@ namespace IdentifyApp
                     var jsonResult = response.Content.ReadAsStringAsync().Result;
 
                     // JSON 파싱
-                    person.faceId = JsonConvert.DeserializeObject<Person>(jsonResult).faceId;
-                    Debug.WriteLine(person.faceId);
+                    //person.faceId = JsonConvert.DeserializeObject<Person>(jsonResult).faceId;
+                    //Debug.WriteLine(person.faceId);
                 }
-            }            
+            }
         }
-        
+
+    
+
+        private void takePhotoBtnClicked(object sender, RoutedEventArgs e)
+        {
+            TakePhotoAsync();
+        }
+
+        private async void confirmBtnClicked(object sender, RoutedEventArgs e)
+        {
+            await Task.Run(() =>
+            {
+                sendPhoto();
+            });
+
+            if(stepNum != 3)
+            {
+                stepNum++;
+                statusChange();
+            }
+            else
+            {
+                NextPageBtn.Visibility = Visibility.Visible;
+            }
+            
+        }
+
+        private void statusChange()
+        {
+            if(stepNum == 2)
+            {
+                GuideMessage.Text = "Step2. 오른쪽으로 45 각도로 바라보세요";
+                imageFileName = RightFaceImageName;
+            }
+            else if(stepNum == 3)
+            {
+                GuideMessage.Text = "Step3. 왼쪽으로 45 각도로 바라보세요";
+                imageFileName = LeftFaceImageName;
+            }
+        }
+        private async void NextBtnClicked(object sender, RoutedEventArgs e)
+        {
+            await CleanupCameraAsync();
+            Frame.Navigate(typeof(VerifyPage), person);
+        }
     }
 }
