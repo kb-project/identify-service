@@ -16,8 +16,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Height="100" Background="Beige" Grid.Row="0">
-            <TextBlock Text="1. 신분증 촬영" Margin="10"/>
-            <Button Content="사진촬영 / 재촬영" Margin="10" Click="takePhotoBtnClicked"/>
+            <TextBlock Text="1. 신분증 촬영" Margin="10"/>           
         </StackPanel>
         <StackPanel Grid.Row="1">                       
             <!--Camera preview-->
@@ -25,7 +24,8 @@
             <!--<TextBlock Text="미리보기" Margin="10"/>-->
             <Image x:Name="imageControl" Stretch="Uniform" />
         </StackPanel>
-        <StackPanel Height="100" Background="Beige" Grid.Row="2" Orientation="Horizontal">
+        <StackPanel Height="100" Background="Beige" Grid.Row="2" Orientation="Vertical">
+            <Button x:Name="ConfirmBtn" Content="사진촬영 / 재촬영" Margin="10" Click="takePhotoBtnClicked"/>
             <Button Content="확인" Margin="10" Click="confirmBtnClicked"/>
         </StackPanel>
     </Grid>

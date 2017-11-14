@@ -209,6 +209,8 @@ namespace IdentifyApp
                 await CameraHelper.ReencodeAndSavePhotoAsync(stream, file);
                 Debug.WriteLine("사진이 저장되었습니다");
 
+                ConfirmBtn.Visibility = Visibility.Visible;
+
                 using (IRandomAccessStream fileStream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read))
                 {
                     BitmapImage bitmapImage = new BitmapImage();
@@ -290,6 +292,8 @@ namespace IdentifyApp
 
         private async void confirmBtnClicked(object sender, RoutedEventArgs e)
         {
+            ConfirmBtn.Visibility = Visibility.Collapsed;
+
             await Task.Run(() =>
             {
                 sendPhoto();
