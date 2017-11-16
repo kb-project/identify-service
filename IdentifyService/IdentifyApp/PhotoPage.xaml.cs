@@ -17,6 +17,7 @@ using Windows.Media.MediaProperties;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Core;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -306,6 +307,8 @@ namespace IdentifyApp
             }
             else
             {
+                //사진 3장 찍기 완료 후 다음 단계로 넘어가기 위한 버튼 활성화
+                ConfidenceArea.Visibility = Visibility.Visible;
                 NextPageBtn.Visibility = Visibility.Visible;
             }
             
@@ -326,8 +329,34 @@ namespace IdentifyApp
         }
         private async void NextBtnClicked(object sender, RoutedEventArgs e)
         {
-            await CleanupCameraAsync();
-            Frame.Navigate(typeof(VerifyPage), person);
+            double inputValue;
+            bool isDouble = Double.TryParse(ConfidenceValue.Text, out inputValue);
+            if (isDouble)
+            {
+                if (inputValue > 0 && inputValue < 1)
+                {
+                    await CleanupCameraAsync();
+                    Frame.Navigate(typeof(VerifyPage), person);
+                }
+
+                else
+                {
+                    MessageDialog showDialog = new MessageDialog("0에서 1사이의 값을 입력하세요!");
+                    showDialog.Commands.Add(new UICommand("확인"));
+                    await showDialog.ShowAsync();
+                    ConfidenceValue.Text = String.Empty;
+                }
+            }
+            else
+            {
+                MessageDialog showDialog = new MessageDialog("0에서 1사이의 값을 입력하세요!");
+                showDialog.Commands.Add(new UICommand("확인"));
+                await showDialog.ShowAsync();
+                ConfidenceValue.Text = String.Empty;
+            }
+            
         }
+
+        
     }
 }

@@ -124,12 +124,18 @@ namespace IdentifyApp
                         // JSON 파싱
                         verify = JsonConvert.DeserializeObject<VerifyResult>(jsonResult);
 
-                        if (verify.isIdentical)
+                        // Confidence 결과 값 퍼센트로 변환
+                        double confidenceResult = verify.confidence * 100;
+                        confidenceTxt.Text = confidenceResult.ToString();
+
+                        // 결과로 받아온 confidence 값(verify.confidence)이 기준치(person.confidence)랑 비교했을때 큰지 작은지 여부 
+                        if (person.confidence <= verify.confidence)
                         {
                             Debug.WriteLine(verify.confidence);
                             checkResultTxt.Visibility = Visibility.Collapsed;
                             progress1.Visibility = Visibility.Collapsed;
                             VerifyTxt.Visibility = Visibility.Visible;
+                            confidenceArea.Visibility = Visibility.Visible;
                             return;
                         }
                         else
@@ -138,6 +144,7 @@ namespace IdentifyApp
                             checkResultTxt.Visibility = Visibility.Collapsed;
                             progress1.Visibility = Visibility.Collapsed;
                             notVerifyTxt.Visibility = Visibility.Visible;
+                            confidenceArea.Visibility = Visibility.Visible;
                             return;
                         }
                     }                    

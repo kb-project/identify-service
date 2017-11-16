@@ -12,5 +12,7 @@ namespace IdentifyApp.Models
         public string personId { get; set; }
         public string personGroupId { get; set; } = "persongroup1";
         public string blobUrl { get; set; }
+
+        public double confidence { get; set; } = 0.5;
     }
 }

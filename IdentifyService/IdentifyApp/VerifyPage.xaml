@@ -4,21 +4,23 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:IdentifyApp"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"    
     mc:Ignorable="d">
 
-    <Grid Background="#0078d7">
+    <Grid Background="#0078d7">        
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <StackPanel Orientation="Vertical">
-                <!--<ToggleSwitch Header="Toggle Switch Example" OffContent="Do work" 
-                              OnContent="Working" Toggled="ToggleSwitch_Toggled"/>-->
+            <StackPanel Orientation="Vertical">               
                 <TextBlock Text="결과 확인중" x:Name="checkResultTxt" Foreground="White" FontSize="16" Margin="10"/>
                 <ProgressRing x:Name="progress1" IsActive="True" Foreground="White" Margin="10"/>
                 <TextBlock Text="확인되었습니다" Name="VerifyTxt" Visibility="Collapsed" Foreground="White" FontSize="16" Margin="10"></TextBlock>
                 <TextBlock Text="인증에 실패하였습니다" Name="notVerifyTxt" Visibility="Collapsed" Foreground="White" FontSize="16" Margin="10"></TextBlock>
                 <TextBlock Text="일시적인 장애로 인증을 수행하지 못했습니다" Name="serviceErrorTxt" Visibility="Collapsed" Foreground="White" FontSize="16" Margin="10"></TextBlock>
-            </StackPanel>
-
+                <StackPanel x:Name="confidenceArea" Orientation="Horizontal" Margin="10" Visibility="Collapsed">
+                    <TextBlock Text="Confidence :" Foreground="White" FontSize="16"></TextBlock>
+                    <TextBlock x:Name="confidenceTxt" Text="confidence value" Foreground="White" FontSize="16"></TextBlock>
+                    <TextBlock Text="%" Foreground="White" FontSize="16"></TextBlock>
+                </StackPanel>
+            </StackPanel>            
         </StackPanel>
     </Grid>
     

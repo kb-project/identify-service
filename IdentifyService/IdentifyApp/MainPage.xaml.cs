@@ -29,6 +29,7 @@ using IdentifyApp;
 using IdentifyApp.Models;
 using Newtonsoft.Json;
 using IdentifyApp.Helpers;
+using Windows.UI.Popups;
 
 // 빈 페이지 항목 템플릿에 대한 설명은 https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x412에 나와 있습니다.
 
@@ -220,13 +221,21 @@ namespace IdentifyApp
                 httpPost();
             });
                         
-            if (person.faceId != null)
+            if (!String.IsNullOrEmpty(person.faceId))
             {
                 await CleanupCameraAsync();
 
                 // 다음 페이지로 이동
                 Frame.Navigate(typeof(PhotoPage), person);                
-            }            
+            }
+            else
+            {
+                //face Id가 null인 경우 경고 메세지를 띄워준다. 다음단계로 넘어갈 수 없다.
+                MessageDialog showDialog = new MessageDialog("얼굴이 제대로 인식되지 않았습니다. 다시 촬영해주세요!");
+                showDialog.Commands.Add(new UICommand("확인"));
+                await showDialog.ShowAsync();
+                
+            }
         }
 
         private void httpPost()
