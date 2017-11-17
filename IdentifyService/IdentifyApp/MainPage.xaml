@@ -6,26 +6,28 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
+    <ScrollViewer>
+        <Grid Background="#0078d7">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <StackPanel Height="100" Background="Beige" Grid.Row="0">
-            <Button Content="사진촬영" Margin="10" Click="takePhotoBtnClicked"/>
-        </StackPanel>
-        <StackPanel Grid.Row="1">
-            <TextBlock Text="미리보기" Margin="10"/>
-            <Image x:Name="imageControl" Width="200" Height="200"/>
-        </StackPanel>
-        <StackPanel Height="100" Background="Beige" Grid.Row="2" Orientation="Horizontal">
-            <Button Content="확인" Margin="10" Click="confirmBtnClicked"/>
-            <Button Content="재촬영" Margin="10" Click="retakeBtnClicked"/>
-
-        </StackPanel>
-
-    </Grid>
+            <StackPanel Grid.Row="0">
+                <TextBlock Text="1. 신분증 촬영" Foreground="White" FontSize="16" Margin="10"/>
+            </StackPanel>
+            <StackPanel Grid.Row="1">
+                <!--Camera preview-->
+                <CaptureElement Name="PreviewControl" Stretch="Uniform"/>
+                <!--<TextBlock Text="미리보기" Margin="10"/>-->
+                <Image x:Name="imageControl" Stretch="Uniform" />
+            </StackPanel>
+            <StackPanel Grid.Row="2" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
+                <Button Content="사진촬영 / 재촬영" Foreground="White" FontSize="16" Width="200" Margin="5" Click="takePhotoBtnClicked" />
+                <Button x:Name="ConfirmBtn" Width="200" Foreground="White" FontSize="16" Content="확인" Margin="5" Click="confirmBtnClicked" Visibility="Collapsed"/>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </Page>

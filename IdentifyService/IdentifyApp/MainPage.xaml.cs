@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Devices.Enumeration;
@@ -22,6 +24,13 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
+
+using IdentifyApp;
+using IdentifyApp.Models;
+using Newtonsoft.Json;
+using IdentifyApp.Helpers;
+using Windows.UI.Popups;
+
 // 빈 페이지 항목 템플릿에 대한 설명은 https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x412에 나와 있습니다.
 
 namespace IdentifyApp
@@ -32,122 +41,234 @@ namespace IdentifyApp
     public sealed partial class MainPage : Page
     {
         //개체 초기화
-        MediaCapture mediaCapture;
-        bool isPreviewing;
+        private StorageFolder _captureFolder = null;
         
+        private MediaCapture _mediaCapture;
+        private bool _isInitialized;
+        private bool _isPreviewing;
+        private string imagePath;
+        private string imageFileName = "idcard.jpg";
+
+        Person person = new Person();
+
 
         public MainPage()
         {
-            this.InitializeComponent();
+            this.InitializeComponent();            
+        }
+
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            Application.Current.Suspending += Application_Suspending;
+            Application.Current.Suspending += Application_Resuming;
+
+            await InitializeCameraAsync();
+        }
+
+        protected override async void OnNavigatingFrom(NavigatingCancelEventArgs e)
+        {
+            Application.Current.Suspending -= Application_Suspending;
+            Application.Current.Suspending -= Application_Resuming;
+
+            await InitializeCameraAsync();
+        }
+
+        private void Application_Suspending(object sender, SuspendingEventArgs e)
+        {
+            var deferral = e.SuspendingOperation.GetDeferral();
+            var task = Dispatcher.RunAsync(CoreDispatcherPriority.High, async () =>
+            {
+                await InitializeCameraAsync();
+                deferral.Complete();
+            });
+        }
+
+        private void Application_Resuming(object sender, object o)
+        {
+            var task = Dispatcher.RunAsync(CoreDispatcherPriority.High, async () =>
+            {
+                await InitializeCameraAsync();
+            });
+        }
+        private async Task InitializeCameraAsync()
+        {
+            Debug.WriteLine("InitializeCameraAsync");
+            if(_mediaCapture == null)
+            {
+                var cameraDevice = await CameraHelper.FindCameraDeviceByPanelAsync(Windows.Devices.Enumeration.Panel.Back);
+
+                if(cameraDevice == null)
+                {
+                    Debug.WriteLine("No camera device found!");
+                    return;
+                }
+
+                _mediaCapture = new MediaCapture();
+                _mediaCapture.Failed += MediaCapture_Failed;
+                
+                try
+                {
+                    await _mediaCapture.InitializeAsync();
+                    _isInitialized = true;
+
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    Debug.WriteLine("카메라 접근 권한이 없어서 종료되었습니다.");
+                }
+
+                if (_isInitialized)
+                {                    
+                    await StartPreviewAsync();
+                }
+            }            
+        }
+
+        private async Task StartPreviewAsync()
+        {
+            // Set the preview source in the UI and mirror it if necessary
+            PreviewControl.Source = _mediaCapture;
+            
+            // preview 시작
+            await _mediaCapture.StartPreviewAsync();
+            _isPreviewing = true;
+        }
+
+
+        private async void MediaCapture_Failed(MediaCapture sender, MediaCaptureFailedEventArgs errorEventArgs)
+        {
+            Debug.WriteLine("MediaCapture_Failed: (0x{0:X}) {1}", errorEventArgs.Code, errorEventArgs.Message);
+
+            await CleanupCameraAsync();
+
+            //await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => UpdateCaptureControls());
+        }
+
+        private async Task CleanupCameraAsync()
+        {
+            Debug.WriteLine("CleanupCameraAsync");
+
+            if (_isInitialized)
+            {
+                if (_isPreviewing)
+                {
+                    await StopPreviewAsync();
+                }
+                _isInitialized = false;
+            }
+        }
+
+        private async Task StopPreviewAsync()
+        {
+            _isPreviewing = false;
+            await _mediaCapture.StopPreviewAsync();
+
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                PreviewControl.Source = null;
+
+            });
         }
 
         private async void TakePhotoAsync()
         {
-            mediaCapture = new MediaCapture();
-            await mediaCapture.InitializeAsync();
-            //mediaCapture.Failed += MediaCapture_Failed;
+            var stream = new InMemoryRandomAccessStream(); ;
 
-            // Prepare and capture photo
-            // 캡쳐한 사진을 바로 XAML에서 보여줌
-            var lowLagCapture = await mediaCapture.PrepareLowLagPhotoCaptureAsync(ImageEncodingProperties.CreateUncompressed(MediaPixelFormat.Bgra8));
+            Debug.WriteLine("Taking Photo...");
 
-            var capturedPhoto = await lowLagCapture.CaptureAsync();
-            var softwareBitmap = capturedPhoto.Frame.SoftwareBitmap;
+            var picturesLibrary = await StorageLibrary.GetLibraryAsync(KnownLibraryId.Pictures);
+            _captureFolder = picturesLibrary.SaveFolder ?? ApplicationData.Current.LocalFolder;
 
-            await lowLagCapture.FinishAsync();
+            await _mediaCapture.CapturePhotoToStreamAsync(ImageEncodingProperties.CreateJpeg(), stream);
 
-            //임시로 저장된 거를 XAML에서 표시
-            if (softwareBitmap.BitmapPixelFormat != BitmapPixelFormat.Bgra8 ||
-            softwareBitmap.BitmapAlphaMode == BitmapAlphaMode.Straight)
-            {
-                softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+            try
+            {                
+                var file = await _captureFolder.CreateFileAsync(imageFileName, CreationCollisionOption.ReplaceExisting);
+                Debug.WriteLine("사진이 찍혔고, 다음 위치에 저장될 예정입니다 : " + file.Path);
+                imagePath = file.Path;                
+
+                //XAML에서 사진 미리 보여주고 뒤이어 바로 사진저장
+                await CameraHelper.ReencodeAndSavePhotoAsync(stream, file);
+                Debug.WriteLine("사진이 저장되었습니다");
+
+                ConfirmBtn.Visibility = Visibility.Visible;
+
+                using (IRandomAccessStream fileStream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read))
+                {
+                    BitmapImage bitmapImage = new BitmapImage();
+                    await bitmapImage.SetSourceAsync(fileStream);
+                    imageControl.Source = bitmapImage;
+                    
+                }
+                Debug.WriteLine("사진을 미리봅니다");
             }
-
-            var source = new SoftwareBitmapSource();
-            await source.SetBitmapAsync(softwareBitmap);
-
-            // Set the source of the Image control
-            imageControl.Source = source;
-        }
-
-        
-
-        public async void takePhoto()
-        {
-            CameraCaptureUI captureUI = new CameraCaptureUI();
-            captureUI.PhotoSettings.Format = CameraCaptureUIPhotoFormat.Jpeg;
-           // captureUI.PhotoSettings.CroppedSizeInPixels = new Size(200, 200);
-
-            StorageFile photo = await captureUI.CaptureFileAsync(CameraCaptureUIMode.Photo);
-
-            if (photo == null)
+            catch (Exception ex)
             {
-                // User cancelled photo capture
-                return;
-            }
-            StorageFolder destinationFolder =
-            await ApplicationData.Current.LocalFolder.CreateFolderAsync("ProfilePhotoFolder",
-                CreationCollisionOption.OpenIfExists);
-
-            await photo.CopyAsync(destinationFolder, "ProfilePhoto.jpg", NameCollisionOption.ReplaceExisting);
-            //await photo.DeleteAsync();
-
-
-            IRandomAccessStream stream = await photo.OpenAsync(FileAccessMode.Read);
-            BitmapDecoder decoder = await BitmapDecoder.CreateAsync(stream);
-            SoftwareBitmap softwareBitmap = await decoder.GetSoftwareBitmapAsync();
-
-            SoftwareBitmap softwareBitmapBGR8 = SoftwareBitmap.Convert(softwareBitmap,
-            BitmapPixelFormat.Bgra8,
-            BitmapAlphaMode.Premultiplied);
-
-            SoftwareBitmapSource bitmapSource = new SoftwareBitmapSource();
-            await bitmapSource.SetBitmapAsync(softwareBitmapBGR8);
-
-            imageControl.Source = bitmapSource;
+                Debug.WriteLine("사진을 찍는동안 문제가 발생하였습니다: " + ex.ToString());
+            }            
         }
 
         private void takePhotoBtnClicked(object sender, RoutedEventArgs e)
-        {
-            takePhoto();
-            //TakePhotoAsync();
-           
+        {            
+            TakePhotoAsync();           
         }
 
         private async void confirmBtnClicked(object sender, RoutedEventArgs e)
-        {            
-            //확인 버튼을 누를 경우 - 이미지 파일로 저장
-            //var myPictures = await Windows.Storage.StorageLibrary.GetLibraryAsync(Windows.Storage.KnownLibraryId.Pictures);
-            //StorageFile file = await myPictures.SaveFolder.CreateFileAsync("photo.jpg", CreationCollisionOption.GenerateUniqueName);
-
-            //using (var captureStream = new InMemoryRandomAccessStream())
-            //{
-            //    await mediaCapture.CapturePhotoToStreamAsync(ImageEncodingProperties.CreateJpeg(), captureStream);
-
-            //    using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite))
-            //    {
-            //        var decoder = await BitmapDecoder.CreateAsync(captureStream);
-            //        var encoder = await BitmapEncoder.CreateForTranscodingAsync(fileStream, decoder);
-
-            //        var properties = new BitmapPropertySet {
-            //            { "System.Photo.Orientation", new BitmapTypedValue(PhotoOrientation.Normal, PropertyType.UInt16) }
-            //        };
-            //        await encoder.BitmapProperties.SetPropertiesAsync(properties);
-
-            //        await encoder.FlushAsync();
-            //    }
-            //}
-
-            //다음 페이지로 이동
-            Frame.Navigate(typeof(FrontViewPage));
-        }
-
-        private void retakeBtnClicked(object sender, RoutedEventArgs e)
         {
-            takePhoto();
-            //TakePhotoAsync();
+            // api/idcard 요청 및 faceId 저장
+            await Task.Run(() =>
+            {
+                httpPost();
+            });
+                        
+            if (!String.IsNullOrEmpty(person.faceId))
+            {
+                await CleanupCameraAsync();
+
+                // 다음 페이지로 이동
+                Frame.Navigate(typeof(PhotoPage), person);                
+            }
+            else
+            {
+                //face Id가 null인 경우 경고 메세지를 띄워준다. 다음단계로 넘어갈 수 없다.
+                MessageDialog showDialog = new MessageDialog("얼굴이 제대로 인식되지 않았습니다. 다시 촬영해주세요!");
+                showDialog.Commands.Add(new UICommand("확인"));
+                await showDialog.ShowAsync();
+                
+            }
         }
 
+        private void httpPost()
+        {
+            // 찍은 사진을 불러온 후..
+           using (var fileStream = new FileStream(imagePath, FileMode.Open))
+            {
+                HttpContent fileStreamContent = new StreamContent(fileStream);
+                using (var client = new HttpClient())
+                using (var formData = new MultipartFormDataContent())
+                {
+                    string requestUrl = App.baseUrl + "/idcard";
+
+                    formData.Add(fileStreamContent, imageFileName, imageFileName);
+                    var response = client.PostAsync(requestUrl, formData).Result;
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Debug.WriteLine("Http 요청에 실패했습니다.");
+                    }
+
+                    response.EnsureSuccessStatusCode();
+                    client.Dispose();
+
+                    // JSON 리턴 값 저장 
+                    var jsonResult = response.Content.ReadAsStringAsync().Result;
+
+                    // JSON 파싱
+                    person.faceId = JsonConvert.DeserializeObject<Person>(jsonResult).faceId;
+                    Debug.WriteLine(person.faceId);
+                }
+            }            
+        }
         
     }
 }
