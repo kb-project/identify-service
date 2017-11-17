@@ -8,7 +8,7 @@ namespace kbdwrfunctions
     public static class ProcessOcr
     {
         [FunctionName("ProcessOcr")]
-        public static void Run([QueueTrigger("ocr", Connection = "BlobConnection")]string myQueueItem, [Table("ocr", Connection = "StorageConnection")]ICollector<Ocr> tableBinding, TraceWriter log)
+        public static void Run([QueueTrigger("ocr", Connection = "StorageConnection")]string myQueueItem, [Table("ocr", Connection = "StorageConnection")]ICollector<Ocr> tableBinding, TraceWriter log)
         {
             log.Info($"C# Queue trigger function processed: {myQueueItem}");
             var jsontext = myQueueItem;
