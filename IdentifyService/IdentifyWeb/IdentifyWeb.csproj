@@ -146,9 +146,15 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\PersonGroupsController.cs" />
     <Compile Include="Controllers\IdcardController.cs" />
+    <Compile Include="Controllers\PhotoController.cs" />
+	<Compile Include="Controllers\VerifyController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\CommonModels.cs" />
+    <Compile Include="Utility\FaceVerifyHelper.cs" />
+    <Compile Include="Utility\CognitiveServicesCallHelper.cs" />
+    <Compile Include="Utility\MultipartFormdataStreamBlobUploader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -165,7 +171,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
