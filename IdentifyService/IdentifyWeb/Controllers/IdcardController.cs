@@ -66,7 +66,7 @@ namespace IdentifyWeb.Controllers
 
                     //Face Detection 호출
                     List<string> contentsFace = await CognitiveServicesCallHelper.CognitiveServicePostAsync(
-                        CloudConfigurationManager.GetSetting("CognitiveServicesKeyVision"),
+                        CloudConfigurationManager.GetSetting("CognitiveServicesKeyFace"),
                         "https://eastasia.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceAttributes=age,gender,headPose,glasses,accessories",
                         urlBlob.url);
 
