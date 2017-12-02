@@ -6,37 +6,47 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"    
     mc:Ignorable="d">
-    <ScrollViewer>
-        <Grid Background="#0078d7">
-           
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <Grid Background="#FFE570">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-
-            <StackPanel  Grid.Row="0">
-                <TextBlock Text="2. 본인 얼굴 사진 촬영" Foreground="White" FontSize="16" Margin="10"/>
+            
+            <StackPanel Grid.Row="0" Grid.Column="0" Background="White">
+                <Image Source="Images/kblogo.png" Height="50"/>
             </StackPanel>
-            <StackPanel Grid.Row="1">
-                <TextBlock x:Name="GuideMessage" Text="Step1. 정면을 바라봐 주세요" Foreground="White" FontSize="16" Margin="10"/>
+            <StackPanel  Grid.Row="1" Grid.Column="0">
+                <TextBlock Text="2. 본인 얼굴 사진 촬영" Foreground="#81776B" FontSize="16" Margin="10"/>
+                <TextBlock x:Name="GuideMessage" Text="Step1. 정면을 바라봐 주세요" Foreground="#81776B" FontSize="16" Margin="10"/>
+            </StackPanel>
+            <StackPanel Grid.Row="2" Grid.Column="0"  Orientation="Horizontal">
                 <!--Camera preview-->
 
                 <CaptureElement x:Name="PreviewControl" Stretch="Uniform"/>
                 <!--<TextBlock Text="미리보기" Margin="10"/>-->
-                <Image x:Name="ImageControl" Stretch="Uniform" />
+                <Image x:Name="ImageControl" Stretch="Uniform" Source="Images/default-img.jpg"/>
             </StackPanel>
 
-            <StackPanel  Grid.Row="2" Orientation="Vertical" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel  Grid.Row="3"  Grid.Column="0"  Orientation="Horizontal" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <!--<TextBlock Text="확인 메세지" Margin="10"/>-->
-                <Button Content="사진촬영 / 재촬영" Width="200" Margin="5" Foreground="White" FontSize="16" Click="takePhotoBtnClicked"/>
-                <Button x:Name="ConfirmBtn" Width="200" Content="확인" Margin="5" Foreground="White" FontSize="16" Click="confirmBtnClicked" Visibility="Collapsed"/>
-                <StackPanel x:Name="ConfidenceArea"  Orientation="Horizontal" Visibility="Collapsed">
-                    <TextBlock Text="Confidence 값 입력: " Foreground="White" FontSize="16" />
-                    <TextBox x:Name="ConfidenceValue" PlaceholderText="0.5" />
+                <Button Content="사진촬영 / 재촬영" Width="200" Margin="5" Foreground="#81776B" FontSize="16" Click="takePhotoBtnClicked"/>
+                <Button x:Name="ConfirmBtn" Width="200" Content="확인" Margin="5" Foreground="#81776B" FontSize="16" Click="confirmBtnClicked" Visibility="Collapsed"/>
+                <StackPanel x:Name="ConfidenceArea" Orientation="Horizontal" Visibility="Collapsed" Margin="3">
+                    <TextBlock Text="Confidence 값 입력: " Foreground="#81776B" FontSize="16" VerticalAlignment="Center"/>
+                    <TextBox x:Name="ConfidenceValue" PlaceholderText="0.5" Height="10" Margin="3"/>
                 </StackPanel>
-                <Button x:Name="NextPageBtn" Width="200" Content="다음 페이지로... >>" Margin="5" Foreground="White" FontSize="16" Click="NextBtnClicked" Visibility="Collapsed"/>
+                <Button x:Name="NextPageBtn" Width="200" Content="다음 페이지로... >>" Margin="5" Foreground="#81776B" FontSize="16" Click="NextBtnClicked" Visibility="Collapsed"/>
                 
+            </StackPanel>
+            <StackPanel Grid.Row="4" Grid.Column="0" Background="White">
+                <Image Height="50" Source="Images/kblogo.png"/>
             </StackPanel>
         </Grid>
     </ScrollViewer>

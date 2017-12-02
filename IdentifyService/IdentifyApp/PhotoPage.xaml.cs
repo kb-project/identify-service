@@ -171,7 +171,6 @@ namespace IdentifyApp
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 PreviewControl.Source = null;
-
             });
         }
 
@@ -277,9 +276,6 @@ namespace IdentifyApp
                     // JSON 리턴 값 저장 
                     var jsonResult = response.Content.ReadAsStringAsync().Result;
 
-                    // JSON 파싱
-                    //person.faceId = JsonConvert.DeserializeObject<Person>(jsonResult).faceId;
-                    //Debug.WriteLine(person.faceId);
                 }
             }
         }
@@ -336,6 +332,8 @@ namespace IdentifyApp
                 if (inputValue > 0 && inputValue < 1)
                 {
                     await CleanupCameraAsync();
+                    person.confidence = inputValue;
+                    await CleanupCameraAsync();
                     Frame.Navigate(typeof(VerifyPage), person);
                 }
 
@@ -349,10 +347,22 @@ namespace IdentifyApp
             }
             else
             {
-                MessageDialog showDialog = new MessageDialog("0에서 1사이의 값을 입력하세요!");
-                showDialog.Commands.Add(new UICommand("확인"));
-                await showDialog.ShowAsync();
-                ConfidenceValue.Text = String.Empty;
+                // 만약 아에 공백일 경우
+                if(String.IsNullOrEmpty(ConfidenceValue.Text))
+                {
+                    await CleanupCameraAsync();
+                    Frame.Navigate(typeof(VerifyPage), person);
+                }
+                else
+                {
+                    // 공백이 아니라 이상한 값이 들어가있을 경우
+                    MessageDialog showDialog = new MessageDialog("0에서 1사이의 값을 입력하세요!");
+                    showDialog.Commands.Add(new UICommand("확인"));
+                    await showDialog.ShowAsync();
+                    ConfidenceValue.Text = String.Empty;
+                }
+
+                
             }
             
         }

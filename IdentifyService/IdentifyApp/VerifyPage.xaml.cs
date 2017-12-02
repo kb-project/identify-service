@@ -136,6 +136,7 @@ namespace IdentifyApp
                             progress1.Visibility = Visibility.Collapsed;
                             VerifyTxt.Visibility = Visibility.Visible;
                             confidenceArea.Visibility = Visibility.Visible;
+                            restartBtn.Visibility = Visibility.Visible;
                             return;
                         }
                         else
@@ -145,6 +146,7 @@ namespace IdentifyApp
                             progress1.Visibility = Visibility.Collapsed;
                             notVerifyTxt.Visibility = Visibility.Visible;
                             confidenceArea.Visibility = Visibility.Visible;
+                            restartBtn.Visibility = Visibility.Visible;
                             return;
                         }
                     }                    
@@ -161,9 +163,12 @@ namespace IdentifyApp
                 progress1.Visibility = Visibility.Collapsed;
                 serviceErrorTxt.Visibility = Visibility.Visible;
             }
-        }  
+        }
 
-      
+        private void restartBtnClicked(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(MainPage));
+        }
     }
 
    
