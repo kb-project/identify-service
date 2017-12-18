@@ -10,7 +10,7 @@ namespace kbdwrfunctions
     public static class ProcessPhotoQueue
     {
         [FunctionName("ProcessPhotoQueue")]
-        public static void Run([QueueTrigger("photo", Connection = "StorageConnection")]string myQueueItem, TraceWriter log)
+        public static void Run([QueueTrigger("photo-test", Connection = "StorageConnection")]string myQueueItem, TraceWriter log)
         {
             log.Info($"C# Queue trigger function processed: {myQueueItem}");
             var jsonData = myQueueItem;
