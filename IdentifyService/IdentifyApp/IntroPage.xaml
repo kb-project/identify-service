@@ -1,0 +1,39 @@
+﻿<Page
+    x:Class="IdentifyApp.IntroPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:IdentifyApp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+    
+    <Grid Background="#FFE570">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Background="White">
+            <Image Source="Images/kblogo.png" Height="50"/>
+        </StackPanel>
+        
+        <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock Text="필수 준비사항" Foreground="#81776B" FontSize="16" Margin="10"/>
+            <TextBlock Text="1. 본인명의의 휴대폰이 필요해요!" Foreground="#81776B" FontSize="16" Margin="10"/>
+            <TextBlock Text="본인 휴대폰 인증을 할 거에요~" Foreground="#81776B" FontSize="16" Margin="10"/>
+            <TextBlock Text="2. 신분증을 미리 준비해주세요~" Foreground="#81776B" FontSize="16" Margin="10"/>
+            <TextBlock Text="주민등록증 OK! 운전면허증도 OK!" Foreground="#81776B" FontSize="16" Margin="10"/>
+        </StackPanel>
+        
+        <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Button Content="시작하기" Foreground="#81776B" FontSize="16" Width="200" Margin="5" Click="nextPageBtnClicked"/>
+        </StackPanel>
+        
+        <StackPanel Grid.Row="3" Background="White">
+            <Image Source="Images/kblogo2.png" Height="50" />
+        </StackPanel>
+    </Grid>
+    
+</Page>
