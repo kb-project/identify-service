@@ -11,46 +11,57 @@ color: "blue"
 excerpt: This article is aimed a providing a template to create DevOps Hackfest articles.
 ---
 
-## Learning from Hackfest with *KB(Kookmin Bank)* ##
+KB is one of the largest bank in Korea. Banking industry is conservative to adopt new technologies  such as cloud services. They are considering the adoption of cloud, starting with Microsoft's AI technology. In this project, we tried to use Microsoft's AI services to examine non-facing authentication scenarios. 
 
-Intro statement with bulleted lists of:
+## Key Technologies ## 
 
-- AI based face authentication solution implement by using Cognitive Services and cloud services  
-- Core Hack Team: Eunji Kim (Microsoft Software Engineer), Hyewon Ryu (Microsoft Program Manager), Seok jin Han(GBB AA/AI TSP), Seungmin Cho(STU TSP)
+- [Microsoft Cognitive Services](https://azure.microsoft.com/en-us/services/cognitive-services/) (Face, Vision)
+- [Azure Functions](https://azure.microsoft.com/en-us/services/functions/)
+- [Azure API Apps](https://azure.microsoft.com/en-us/services/app-service/api/)
+- [Azure Storage](https://azure.microsoft.com/en-us/services/storage/?v=16.50) (Blob, Queue)
+- [Universal Windows Platform](https://docs.microsoft.com/en-us/windows/uwp/get-started/universal-application-platform-guide) (Windows 10 App) 
 
+## Core Project Team ##
+* Microsoft
+	* [Eunji Kim](https://github.com/angie4u) (Microsoft Software Engineer)
+	* Hyewon Ryu (Microsoft Program Manager)
+	* Seok jin Han(GBB AA/AI TSP)
+	* Seungmin Cho(STU TSP)
+* KB Bank
+	* Sung ho Hong - Smart platform Team
+	* Mi sun Yoo - Smart platform Team
+	* Sung hak Kim - Smart platform Team
  
 ## Customer Profile ##
+![kblogo](./images/kblogo.jpg)
 As a core affiliate of KB Financial Group Inc.(KB FG), KB Kookmin Bank is one of the four largest banks ranked by asset value in South Korea since its establishment in 1963. KB FG is a comprehensive financial group that has assets of 299 trillion KRW and also has the largest domestic customer base  based on the widest network, and many branches in Korea. Not only does KB FG have domestic affiliates but also owns worldwide affiliates : KB Asset Management, KB Real Estate Trust, KB Investment, KB Futures, KB Credit Information, KB Date Systems, Kookmin Bank Hong Kong Ltd. (UK), Kookmin Bank International Ltd.(UK), and KB Investment & Securities Hong Kong Ltd.(HK)
 
-	Installations: Microsoft Cognitive Services(Face, Vision), Azure Functions, Azure API Apps, Universial Windows Platform(Windows 10 App), Azure Storage(Blob, Queue), Slack, Visual Studio 2017  
-
-	Participants: Eunji Kim (Microsoft Software Engineer), Hyewon Ryu (Microsoft Program Manager), Seok jin Han(GBB AA/AI TSP), Seungmin Cho(STU TSP), Sungjin Lee(STU SS)
-
-	Countries: Korea
-
-	Product/service offerings: Face Authentication Service using their Id card and photo 
-
-Focus of the Hackfest
-	Developing face authentication service using Microsoft Cognitive Service - FACE API and implement this service based on cloud service such as Azure API Apps and Azure functions
- 
 ## Problem Statement ##
 
-Online banking service was not the new area and it already has been serviced to many customers at bank branches. In 2017, the first “Internet Bank” was introduced with no on-site bank branches but only services through online. It was spotlighted by many people due to its convenience. High attentions has brought its rapid growth of value of internet banks but at the same time proportionally it became more struggle to build more competitive services. 
+Online banking service was finot the new area and it already has been serviced to many customers at bank branches. In 2017, the first “Internet Bank” was introduced with no on-site bank branches but only services through online. It was spotlighted by many people due to its convenience. High attentions has brought its rapid growth of value of internet banks but at the same time proportionally it became more struggle to build more competitive services. 
 
 One of their ideas was a non face-to-face service that allowed customers could do their businesses without going to a bank. The most important issue for this service was User Authentication. KB Bank hoped to build the service that could verify a user by comparing the photo on  user’s ID card by our AI technology.
  
 ## Solutions, Steps, and Delivery ##
 
-DevOps practice area improved (source code snippets, pictures, drawings)
+### Project Target
 
-Project team use github to implement the solution. So we can implement continuous deployment pipeline much more easier with the power of Azure Web App deployment options.  
+The primary purpose of this project was to determine if non-face-to-face authentication was possible using Microsoft AI technology. Only their ID card, they can prove themselves to the service. Even thought sometimes this service can not verify the user all the time if the photo taken a log time ago or quality of the photo is not good enough, it can reduce a bunch of work for user and also for the employees who works at the bank. In addition, using Microsoft Vision API - OCR API KB Bank parse the information of the ID card in regardless of which type of ID card it is.   
 
-Define what was worked on and what problem it helped solve
-Only their ID card, they can prove themselves to the service. Even thought sometimes this service can not verify the user all the time if the photo taken a log time ago or quality of the photo is not good enough, it can reduce a bunch of work for user and also for the employees who works at the bank. In addition, using Microsoft Vision API - OCR API KB Bank parse the information of the ID card in regardless of which type of ID card it is.   
+### Architecture
+
+![architecture](./images/architecture-eng.PNG)
+This service was consists of three parts: Client app(UWP), Azure API apps and Azure functions.
+* Client app : Takes pictures and sends it to a server to process
+* Azure API Apps : Calls a cognitive services when it receives a request from an application and stores the information to Azure Storage
+* Azure functions : Triggers and executes when an event occurs to the queue. Process OCR data, add a photo of that person and train person group.  
+
+
+### Demo Video 
+
+[![techdemo](./images/techdemo.PNG)](https://1drv.ms/v/s!AsVbhtDr37iriA2GX8HCMukdqXMb)
 
 ### Technical details of how this was implemented
-
-To implement user authentication by using FACE API, firstly we need to collect photos from user.
 
 **STEP1. Get ID card photo** 
 
@@ -308,32 +319,28 @@ public async Task<HttpResponseMessage> VerifyPostAsync(string personGroupId, str
 	#endregion
 }
 ```
+### Scenario
 
-Pointers to references or documentation 
-
-Learnings from the Microsoft team and the customer team
-With the power of Microsoft AI Service, they can figure out the possibility of face authentication service or even other services using Microsoft Cognitive Services. Also traditionally bank is one of the most conservative business area to adopt new technoloy such as cloud service. During Hackfest, customer impressed by the convience of use cloud service like how quick to deploy their own server, or easy to implement and set up the development environmnet as well. For Microsoft team, we could make customer scenario for bank especailly for authentication and it was also good chance for Microsoft teams to learn from customer and co-work with people who are in charge of other role like GBB or TSP.    
+![scenario](./images/scenario.PNG)
+* Take an ID photo and then take several pictures of yourself to verify.
+* In this case, recognizing that two persons are the same person with a probability of 66.167%.
+* If the camera quality is poor, or the ID photo is old, the recognition rate could be low.
+* There is a possibility that it can be used as an additional authentication method.
  
+## General lessons ##
+* There were many legal restrictions on the use of Public Cloud in the Korean finance industry recently. If it has been included personal information, it will be impossible to handle the data in the Public Cloud. The problem also became a big obstacle in this case. In the case of a project related to personal information from financial industry, it is necessary to discuss deeply about the legal issues.
+* Tried to refine the OCR results through the post-processing but we were only able to put the raw OCR results into the table storage due to time constraint.
+* Had problem that anyone could request service to server as a unauthorized user could call and use the API. To solve this problem, it was necessary to implement AD or Azure AD to the service. 
+
 ## Conclusion ##
 
-Time or cost savings metrics resulting from the implementation of the solution
-
-*To be updated*
-
-Changes in the company culture or their organization
-
-*to be updated*
- 
-
-## General lessons ##
-Bulleted list of insights the Hackfest team came away with
-
-*To be updated*
-
-What can be applied or reused in other environments or other customers ?
-
-*To be updated*
+With the power of Microsoft AI Service, they can figure out the possibility of face authentication service or even other services using Microsoft Cognitive Services. Also traditionally bank is one of the most conservative business area to adopt new technoloy such as cloud service. During Hackfest, customer impressed by the convience of use cloud service like how quick to deploy their own server, or easy to implement and set up the development environmnet as well. For Microsoft team, we could make customer scenario for bank especailly for authentication and it was also good chance for Microsoft teams to learn from customer and co-work with people who are in charge of other role like GBB or TSP.    
+* Have been discussing with KB Bank to adopt of this case for real business.
+* Seen the chance to use this scenario as a toehold for Azure adoption of financial industry.
 
 ## Resources ##
-Links to additional resource (documentation, blog posts, github repos, ...)
-* [https://github.com/kb-project/identify-service](https://github.com/kb-project/identify-service)
+* Explore [identify-service github repo](https://github.com/kb-project/identify-service)
+* [FACE API testing console](https://westus.dev.cognitive.microsoft.com/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395236)
+* [ASP.NET Web API: File Upload](https://docs.microsoft.com/en-us/aspnet/web-api/overview/advanced/sending-html-form-data-part-2)
+* [Customer Case Story - Uber](https://customers.microsoft.com/en-US/story/uber)
+
