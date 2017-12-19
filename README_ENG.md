@@ -22,18 +22,20 @@ KB is one of the largest bank in Korea. Banking industry is conservative to adop
 - [Universal Windows Platform](https://docs.microsoft.com/en-us/windows/uwp/get-started/universal-application-platform-guide) (Windows 10 App) 
 
 ## Core Project Team ##
+![hackfest2](./images/hackfest2.PNG)
 * Microsoft
-	* [Eunji Kim](https://github.com/angie4u) (Microsoft Software Engineer)
-	* Hyewon Ryu (Microsoft Program Manager)
-	* Seok jin Han(GBB AA/AI TSP)
-	* Seungmin Cho(STU TSP)
+	* [Eunji Kim](https://github.com/angie4u) (Software Engineer, Microsoft)
+	* Hyewon Ryu (Program Manager, Microsoft)
+	* Seok jin Han (GBB AA/AI TSP, Microsoft)
+	* Seungmin Cho (STU TSP, Microsoft)
 * KB Bank
-	* Sung ho Hong - Smart platform Team
-	* Mi sun Yoo - Smart platform Team
-	* Sung hak Kim - Smart platform Team
+	* Sung ho Hong (Senior Manager, KB Smart platform Team) 
+	* Mi sun Yoo (Assistant Manager, KB Smart platform Team) 
+	* Sung hak Kim (Assistant Manager, KB Smart platform Team) 
  
 ## Customer Profile ##
 ![kblogo](./images/kblogo.jpg)
+
 As a core affiliate of KB Financial Group Inc.(KB FG), KB Kookmin Bank is one of the four largest banks ranked by asset value in South Korea since its establishment in 1963. KB FG is a comprehensive financial group that has assets of 299 trillion KRW and also has the largest domestic customer base  based on the widest network, and many branches in Korea. Not only does KB FG have domestic affiliates but also owns worldwide affiliates : KB Asset Management, KB Real Estate Trust, KB Investment, KB Futures, KB Credit Information, KB Date Systems, Kookmin Bank Hong Kong Ltd. (UK), Kookmin Bank International Ltd.(UK), and KB Investment & Securities Hong Kong Ltd.(HK)
 
 ## Problem Statement ##
@@ -41,12 +43,12 @@ As a core affiliate of KB Financial Group Inc.(KB FG), KB Kookmin Bank is one of
 Online banking service was finot the new area and it already has been serviced to many customers at bank branches. In 2017, the first “Internet Bank” was introduced with no on-site bank branches but only services through online. It was spotlighted by many people due to its convenience. High attentions has brought its rapid growth of value of internet banks but at the same time proportionally it became more struggle to build more competitive services. 
 
 One of their ideas was a non face-to-face service that allowed customers could do their businesses without going to a bank. The most important issue for this service was User Authentication. KB Bank hoped to build the service that could verify a user by comparing the photo on  user’s ID card by our AI technology.
- 
+
+![hackfest](./images/hackfest.PNG)
+
 ## Solutions, Steps, and Delivery ##
 
-### Project Target
-
-The primary purpose of this project was to determine if non-face-to-face authentication was possible using Microsoft AI technology. Only their ID card, they can prove themselves to the service. Even thought sometimes this service can not verify the user all the time if the photo taken a log time ago or quality of the photo is not good enough, it can reduce a bunch of work for user and also for the employees who works at the bank. In addition, using Microsoft Vision API - OCR API KB Bank parse the information of the ID card in regardless of which type of ID card it is.   
+Based on the [Uber customer story](https://customers.microsoft.com/en-US/story/uber), we derived a scenario that uses [Microsoft Cognitive Services - Face API](https://azure.microsoft.com/en-us/services/cognitive-services/face/) to authenticate the user. We created a client app(Windows 10 Application) for users to take and send photos. All processing, including request to Cognitive Services and authentication were handled on the server side. The architecture and detailed implementation of this project are as follows.
 
 ### Architecture
 
@@ -57,7 +59,7 @@ This service was consists of three parts: Client app(UWP), Azure API apps and Az
 * Azure functions : Triggers and executes when an event occurs to the queue. Process OCR data, add a photo of that person and train person group.  
 
 
-### Demo Video 
+### Tech Demo Video 
 
 [![techdemo](./images/techdemo.PNG)](https://1drv.ms/v/s!AsVbhtDr37iriA2GX8HCMukdqXMb)
 
@@ -65,8 +67,8 @@ This service was consists of three parts: Client app(UWP), Azure API apps and Az
 
 **STEP1. Get ID card photo** 
 
-Using the application, user can take ID card photo and send it to the server which is processing the photo. 
-Server saves the ID card photo to temp storage and process the photo using FACE API and OCR API. Using FACE API, it can get FACE ID which will be used to verify user. Also using OCR API, it can get information from the image and store it to the Azure Queue Storage.  
+With the client app, users can take an ID card photo and send it to the server that processes the photo. 
+The Server saves the ID card photo to temporary storage and processes them using FACE API and OCR API. Users can get the FACE ID from FACE API to identify the user. Users can also use the OCR API to retrieve information from an image and store it to Azure Queue Storage.
 
 [IdentifyWeb - Controllers/IdcardController.cs]	
 ```
@@ -124,9 +126,9 @@ catch (Exception e)
 
 **STEP 2. GET Photo from user**
 
-Using the application, user can take their photo several times and send it to the server which is processing the photo. 
-In this stage, we make a personal ID for user to save several photos from user and use it later when we verify whether the person is the same person in Id card or not.
-To implement this, server make PersonalID and save photos to Blob url and send those information to Azure Queue Storage. It will be processed by Azure Functions.
+Using the application, users can take photo several times and send them to a server that processes photos. 
+This step creates personal ID. It can be used for save several photos and verify user.
+To implement this,  the server creates a Personal ID and stores photos in the Blob storage and sends the information to Azure Queue Storage. It will be processed by Azure Functions.
 
 [IdnetifyWeb - Controllers/PersonGroupsController]
 ```
@@ -204,7 +206,7 @@ return message;
 
 **STEP3. Add photos to PersonalID and train PersonalID** 
 
-When server send message to Azure Queue Storage named photo with the information of PersonalID and image url, Azure function triggered by input and processes images with the PersonalID. 
+The server sends the Personal ID and image URL information to Azure Queue Storage Azure function is triggered by the input and processes the image with the Personal ID. 
 
 [kbdwrfunctions - ProcessPhotoQueue.cs]
 ```
@@ -279,7 +281,7 @@ private static string AddPhoto(Photo photo)
 
 **STEP4. Verify person with ID card and photo**
 
-Server verify the user using FACE API with FACE ID and Person ID
+Use the FACE API and the Person ID to identify the user.
 
 [IdentifyWeb - Controllers/VerifyController.cs]
 ```
@@ -319,7 +321,7 @@ public async Task<HttpResponseMessage> VerifyPostAsync(string personGroupId, str
 	#endregion
 }
 ```
-### Scenario
+### Application Screenshots
 
 ![scenario](./images/scenario.PNG)
 * Take an ID photo and then take several pictures of yourself to verify.
@@ -334,9 +336,7 @@ public async Task<HttpResponseMessage> VerifyPostAsync(string personGroupId, str
 
 ## Conclusion ##
 
-With the power of Microsoft AI Service, they can figure out the possibility of face authentication service or even other services using Microsoft Cognitive Services. Also traditionally bank is one of the most conservative business area to adopt new technoloy such as cloud service. During Hackfest, customer impressed by the convience of use cloud service like how quick to deploy their own server, or easy to implement and set up the development environmnet as well. For Microsoft team, we could make customer scenario for bank especailly for authentication and it was also good chance for Microsoft teams to learn from customer and co-work with people who are in charge of other role like GBB or TSP.    
-* Have been discussing with KB Bank to adopt of this case for real business.
-* Seen the chance to use this scenario as a toehold for Azure adoption of financial industry.
+With the power of Microsoft AI Services, we can figure out the possibility of face authentication services. Traditionally, banks are one of the most conservative business areas to adopt new technology such as cloud services. During the Hackfest, customers were impressed by the ease of use cloud services such as rapid deployment of servers, or they can easily implement and set up their development environment. The Microsoft team was able to fine-tune the customer scenarios for the bank and it was a great opportunity to collaborate with other roles, such as GBB or TSP. We are in discussions with KB Bank to apply this to real business scenario and also we hope this scenario to be the first step towards introducing Azure in the banking industry.
 
 ## Resources ##
 * Explore [identify-service github repo](https://github.com/kb-project/identify-service)
